@@ -105,7 +105,7 @@ transport and verify the document before trusting it.
 aelix extension keygen --label "aelix official catalog"
 
 # After every catalog change: re-sign the document (writes catalog.json.aelixsig).
-aelix extension sign catalog.json --key <keyId>
+aelix extension sign catalog.json --key <keyId> --kind catalog
 ```
 
 Contributors never sign; the owner re-signs after merging a change. See

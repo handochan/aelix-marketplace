@@ -143,7 +143,7 @@ aelix extension keygen --label "aelix official catalog"
 
 # After merging a catalog change, sign the document with that key. This writes
 # catalog.json.aelixsig next to catalog.json.
-aelix extension sign catalog.json --key <keyId>
+aelix extension sign catalog.json --key <keyId> --kind catalog
 ```
 
 The `.aelixsig` sidecar is committed/published beside `catalog.json` (at the same
