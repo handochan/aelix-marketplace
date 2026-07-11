@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aelix marketplace</title>
+<meta name="description" content="Community catalog of extensions for aelix — an auditable, self-hostable, signed terminal coding agent.">
+<style>
+  /* ---- Theme tokens: legible in both light and dark ------------------ */
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --bg-elev: #f6f7f9;
+    --bg-code: #f0f2f5;
+    --fg: #1a1d23;
+    --fg-muted: #5a6472;
+    --border: #d9dee6;
+    --border-strong: #c2c9d4;
+    --accent: #1f6feb;
+    --accent-fg: #ffffff;
+    --chip-bg: #eef1f5;
+    --chip-fg: #46505f;
+    --advisory-bg: #fff4e0;
+    --advisory-fg: #7a4d00;
+    --advisory-border: #e6c17a;
+    --error-bg: #fdecec;
+    --error-fg: #8a1f1f;
+    --error-border: #e6a5a5;
+    --focus: #1f6feb;
+    --radius: 10px;
+    --maxw: 960px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --bg-elev: #161b22;
+      --bg-code: #10151d;
+      --fg: #e6edf3;
+      --fg-muted: #9aa5b1;
+      --border: #2a313c;
+      --border-strong: #3a424e;
+      --accent: #4a9eff;
+      --accent-fg: #06121f;
+      --chip-bg: #1e2530;
+      --chip-fg: #b6c0cc;
+      --advisory-bg: #2a2213;
+      --advisory-fg: #e3b872;
+      --advisory-border: #5a4a26;
+      --error-bg: #2a1414;
+      --error-fg: #f0a3a3;
+      --error-border: #5a2a2a;
+      --focus: #4a9eff;
+    }
+  }
+
+  /* ---- Reset / base -------------------------------------------------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+    overflow-x: hidden; /* body never scrolls horizontally */
+  }
+  code, pre, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+                 "Liberation Mono", monospace;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1, h2, h3 { line-height: 1.25; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: var(--accent);
+    color: var(--accent-fg);
+    padding: 8px 14px;
+    border-radius: 0 0 var(--radius) 0;
+    z-index: 10;
+  }
+  .skip-link:focus { left: 0; }
+
+  /* ---- Header -------------------------------------------------------- */
+  header.site {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+  }
+  .site-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand .name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .brand .tag { color: var(--fg-muted); font-size: 0.9rem; }
+  nav.top a { color: var(--fg-muted); font-size: 0.92rem; margin-left: 18px; }
+  nav.top a:first-child { margin-left: 0; }
+
+  /* ---- Hero ---------------------------------------------------------- */
+  .hero { padding: 56px 0 40px; }
+  .hero h1 {
+    margin: 0 0 14px;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    letter-spacing: -0.02em;
+  }
+  .hero p.lead {
+    margin: 0 0 8px;
+    max-width: 44ch;
+    font-size: 1.12rem;
+    color: var(--fg);
+  }
+  .hero p.sub {
+    margin: 0 0 28px;
+    max-width: 60ch;
+    color: var(--fg-muted);
+  }
+  .traits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .traits li {
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.86rem;
+  }
+
+  /* ---- Install command block ---------------------------------------- */
+  .install { margin: 0; }
+  .install .label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--fg-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .cmd {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg-code);
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .cmd pre {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;      /* long command scrolls inside its own box */
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .cmd pre code { white-space: pre; font-size: 0.92rem; }
+  .cmd .copy {
+    flex: 0 0 auto;
+    border: none;
+    border-left: 1px solid var(--border-strong);
+    background: var(--bg-elev);
+    color: var(--fg);
+    padding: 0 16px;
+    font: inherit;
+    font-size: 0.86rem;
+    cursor: pointer;
+  }
+  .cmd .copy:hover { background: var(--chip-bg); }
+  .cmd .copy[data-copied="true"] { color: var(--accent); font-weight: 600; }
+  .install .note { margin: 10px 0 0; font-size: 0.85rem; color: var(--fg-muted); }
+
+  /* ---- Sections ------------------------------------------------------ */
+  section { padding: 8px 0; }
+  .section-head { margin: 36px 0 6px; }
+  .section-head h2 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .section-head p { margin: 0; color: var(--fg-muted); max-width: 66ch; }
+
+  .divider { height: 1px; background: var(--border); border: 0; margin: 40px 0; }
+
+  /* ---- Catalog viewer ------------------------------------------------ */
+  .catalog-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin: 16px 0 4px;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+  .catalog-meta .count {
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .state {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    background: var(--bg-elev);
+    margin: 18px 0;
+  }
+  .state h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .state p { margin: 0 0 6px; color: var(--fg-muted); }
+  .state.error {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+  }
+  .state.error h3 { color: var(--error-fg); }
+  .state.error .reason {
+    margin-top: 12px;
+    font-size: 0.86rem;
+    color: var(--error-fg);
+    word-break: break-word;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 18px 0;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .card h3 {
+    margin: 0;
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+  }
+  .card .desc { margin: 0; color: var(--fg); font-size: 0.95rem; }
+  .card .catalog-tag { font-size: 0.78rem; color: var(--fg-muted); }
+
+  .field { margin: 0; }
+  .field dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fg-muted);
+    margin-bottom: 3px;
+  }
+  .field dd { margin: 0; }
+  .source-box {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    overflow-x: auto;       /* long source spec scrolls in its own box */
+    max-width: 100%;
+  }
+  .source-box code { white-space: nowrap; font-size: 0.84rem; }
+
+  .card-foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    max-width: 100%;
+  }
+  .chip.version { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .chip.advisory {
+    background: var(--advisory-bg);
+    color: var(--advisory-fg);
+    border-color: var(--advisory-border);
+    cursor: help;
+  }
+  .chip.advisory .sha {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chip.homepage { text-decoration: none; }
+  .chip.homepage:hover { border-color: var(--accent); text-decoration: none; }
+
+  .advisory-foot {
+    margin: 20px 0 0;
+    padding: 14px 16px;
+    border: 1px dashed var(--advisory-border);
+    border-radius: var(--radius);
+    background: var(--advisory-bg);
+    color: var(--advisory-fg);
+    font-size: 0.85rem;
+  }
+  .advisory-foot strong { font-weight: 700; }
+
+  /* ---- Footer -------------------------------------------------------- */
+  footer.site {
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+    padding: 28px 0 40px;
+    color: var(--fg-muted);
+    font-size: 0.88rem;
+  }
+  footer.site a { color: var(--fg-muted); text-decoration: underline; }
+  footer.site a:hover { color: var(--accent); }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 10px; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+    white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#catalog">Skip to catalog</a>
+
+<header class="site">
+  <div class="wrap site-inner">
+    <div class="brand">
+      <span class="name">aelix marketplace</span>
+      <span class="tag">extension catalog</span>
+    </div>
+    <nav class="top" aria-label="Primary">
+      <a href="#catalog">Catalog</a>
+      <a href="https://github.com/handochan/aelix-marketplace" rel="noopener">Repository</a>
+      <a href="https://github.com/handochan/aelix-ai" rel="noopener">aelix</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- (1) Landing hero -------------------------------------------------- -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>Extensions for aelix</h1>
+      <p class="lead">aelix is an auditable, self-hostable, signed terminal coding agent.</p>
+      <p class="sub">
+        This is the community catalog of extensions you can install into aelix.
+        The catalog only decides <em>what</em> to install — every install still
+        goes through aelix's own consent prompt, integrity pin, and signature
+        checks on your machine.
+      </p>
+
+      <ul class="traits" aria-label="What aelix is">
+        <li>Auditable</li>
+        <li>Self-hostable</li>
+        <li>Signed releases</li>
+        <li>Runs in your terminal</li>
+        <li>Works air-gapped</li>
+      </ul>
+
+      <div class="install">
+        <span class="label" id="install-label">Install aelix</span>
+        <div class="cmd" role="group" aria-labelledby="install-label">
+          <pre><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/handochan/aelix-ai/main/install.sh | sh</code></pre>
+          <button class="copy" type="button" id="copy-btn"
+                  aria-label="Copy install command to clipboard">Copy</button>
+        </div>
+        <p class="note">
+          Review the script before piping it to a shell — that is the honest way
+          to run any <code>curl | sh</code> installer. The aelix source lives at
+          <a href="https://github.com/handochan/aelix-ai" rel="noopener">github.com/handochan/aelix-ai</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap"><hr class="divider"></div>
+
+  <!-- (2) Live catalog viewer ------------------------------------------ -->
+  <section id="catalog">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Catalog</h2>
+        <p>
+          Extensions published in this catalog. This list is <strong>advisory</strong>:
+          being listed here does not mean an extension has been reviewed, verified,
+          or is safe to run.
+        </p>
+      </div>
+
+      <div class="catalog-meta" id="catalog-meta" hidden>
+        <span class="count" id="catalog-count"></span>
+        <span id="catalog-name"></span>
+        <span id="catalog-updated"></span>
+      </div>
+
+      <div id="catalog-region" aria-live="polite" aria-busy="true">
+        <div class="state" id="loading">
+          <h3>Loading catalog…</h3>
+          <p>Fetching <code>./catalog.json</code>.</p>
+        </div>
+      </div>
+
+      <p class="advisory-foot" id="advisory-note" hidden>
+        <strong>About the sha256 chip:</strong> the hash shown on a card is a
+        <strong>display-only advisory</strong> value copied from the catalog entry.
+        It is <strong>not</strong> a verified trust signal — aelix does not treat a
+        catalog-supplied hash as proof of anything. Real integrity comes from the
+        install-time consent prompt, the on-disk integrity pin, and the extension's
+        own Ed25519 signature, all checked on your machine.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="https://github.com/handochan/aelix-marketplace" rel="noopener">Marketplace repository</a>
+      <a href="https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md" rel="noopener">Contribute an extension</a>
+      <a href="https://github.com/handochan/aelix-ai" rel="noopener">aelix source</a>
+      <a href="./catalog.json">catalog.json</a>
+    </div>
+    <p>
+      The catalog is advisory and chooses only what to install; trust decisions
+      happen on your machine at install time. Content is served as-is with no
+      warranty.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Copy install command --------------------------------------------
+  var copyBtn = document.getElementById("copy-btn");
+  var cmdText = document.getElementById("install-cmd").textContent;
+  if (copyBtn) {
+    copyBtn.addEventListener("click", function () {
+      function done() {
+        copyBtn.textContent = "Copied";
+        copyBtn.setAttribute("data-copied", "true");
+        window.setTimeout(function () {
+          copyBtn.textContent = "Copy";
+          copyBtn.removeAttribute("data-copied");
+        }, 1800);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmdText).then(done, fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+      function fallbackCopy() {
+        try {
+          var ta = document.createElement("textarea");
+          ta.value = cmdText;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "absolute";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          done();
+        } catch (e) {
+          copyBtn.textContent = "Copy failed";
+          window.setTimeout(function () { copyBtn.textContent = "Copy"; }, 1800);
+        }
+      }
+    });
+  }
+
+  // ---- Catalog viewer --------------------------------------------------
+  var region = document.getElementById("catalog-region");
+  var metaEl = document.getElementById("catalog-meta");
+  var countEl = document.getElementById("catalog-count");
+  var nameEl = document.getElementById("catalog-name");
+  var updatedEl = document.getElementById("catalog-updated");
+  var advisoryNote = document.getElementById("advisory-note");
+
+  // Only http(s) links are rendered as anchors; anything else stays inert
+  // text (defence-in-depth against a javascript:/data: href in an entry).
+  function safeHttpUrl(value) {
+    if (typeof value !== "string") return null;
+    var v = value.trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    return null;
+  }
+
+  function nonEmptyString(value) {
+    return (typeof value === "string" && value.trim()) ? value.trim() : null;
+  }
+
+  // Mirror the CLI's display_version(): explicit `version`, else versions[0].
+  function displayVersion(ext) {
+    var v = nonEmptyString(ext.version);
+    if (v) return v;
+    if (Array.isArray(ext.versions)) {
+      for (var i = 0; i < ext.versions.length; i++) {
+        var cand = nonEmptyString(ext.versions[i]);
+        if (cand) return cand;
+      }
+    }
+    return null;
+  }
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    // textContent everywhere — catalog strings are untrusted, never innerHTML.
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function field(label, valueNode) {
+    var dl = el("dl", "field");
+    dl.appendChild(el("dt", null, label));
+    var dd = el("dd");
+    dd.appendChild(valueNode);
+    dl.appendChild(dd);
+    return dl;
+  }
+
+  function renderCard(ext) {
+    var card = el("article", "card");
+
+    var name = nonEmptyString(ext.name);
+    var source = nonEmptyString(ext.source);
+    // The CLI skips any entry missing name-or-source; do the same here.
+    if (!name || !source) return null;
+
+    card.appendChild(el("h3", null, name));
+
+    var catName = nonEmptyString(ext.catalog_name) || nonEmptyString(ext.catalogName);
+    if (catName) card.appendChild(el("p", "catalog-tag", "from " + catName));
+
+    var desc = nonEmptyString(ext.description);
+    if (desc) card.appendChild(el("p", "desc", desc));
+
+    // Source (the only field the installer actually consumes).
+    var srcBox = el("div", "source-box");
+    srcBox.appendChild(el("code", "mono", source));
+    var srcField = field("Source", srcBox);
+    srcField.querySelector("dd").style.minWidth = "0";
+    card.appendChild(srcField);
+
+    // Footer chips: version, homepage, advisory sha256.
+    var foot = el("div", "card-foot");
+
+    var ver = displayVersion(ext);
+    if (ver) {
+      var vChip = el("span", "chip version");
+      vChip.appendChild(el("span", null, "v" + ver));
+      foot.appendChild(vChip);
+    }
+
+    var home = safeHttpUrl(ext.homepage);
+    if (home) {
+      var a = el("a", "chip homepage");
+      a.setAttribute("href", home);
+      a.setAttribute("rel", "noopener noreferrer");
+      a.setAttribute("target", "_blank");
+      a.textContent = "Homepage ↗";
+      foot.appendChild(a);
+    }
+
+    var sha = nonEmptyString(ext.sha256);
+    if (sha) {
+      var shaChip = el("span", "chip advisory");
+      shaChip.setAttribute(
+        "title",
+        "Advisory display-only value from the catalog entry — NOT a verified " +
+        "trust signal.\nsha256: " + sha
+      );
+      var lbl = el("span", null, "sha256 ");
+      var shaText = el("span", "sha", sha.length > 14 ? sha.slice(0, 12) + "…" : sha);
+      shaChip.appendChild(lbl);
+      shaChip.appendChild(shaText);
+      foot.appendChild(shaChip);
+    }
+
+    if (foot.childNodes.length) card.appendChild(foot);
+    return card;
+  }
+
+  function clearRegion() {
+    while (region.firstChild) region.removeChild(region.firstChild);
+  }
+
+  function showEmptyState() {
+    clearRegion();
+    var box = el("div", "state");
+    box.appendChild(el("h3", null, "No extensions listed yet"));
+    box.appendChild(el("p", null,
+      "This catalog is currently empty. You can contribute an extension by " +
+      "opening a pull request."));
+    var p = el("p");
+    var link = el("a", null, "How to contribute an extension ↗");
+    link.setAttribute("href",
+      "https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md");
+    link.setAttribute("rel", "noopener");
+    p.appendChild(link);
+    box.appendChild(p);
+    region.appendChild(box);
+  }
+
+  function showErrorState(reason) {
+    clearRegion();
+    var box = el("div", "state error");
+    box.appendChild(el("h3", null, "Could not load the catalog"));
+    box.appendChild(el("p", null,
+      "The catalog at ./catalog.json could not be fetched or parsed. If you are " +
+      "viewing this page from a local file, serve it over HTTP so the browser " +
+      "can fetch catalog.json."));
+    if (reason) box.appendChild(el("p", "reason", String(reason)));
+    region.appendChild(box);
+  }
+
+  function renderCatalog(doc) {
+    var extensions = (doc && Array.isArray(doc.extensions)) ? doc.extensions : [];
+    var cards = [];
+    for (var i = 0; i < extensions.length; i++) {
+      var ext = extensions[i];
+      if (ext && typeof ext === "object") {
+        var card = renderCard(ext);
+        if (card) cards.push(card);
+      }
+    }
+
+    // Catalog-level metadata (name / updated / count).
+    var docName = nonEmptyString(doc && doc.name);
+    var docUpdated = nonEmptyString(doc && doc.updated);
+    countEl.textContent = cards.length === 1
+      ? "1 extension" : (cards.length + " extensions");
+    nameEl.textContent = docName ? ("· " + docName) : "";
+    updatedEl.textContent = docUpdated ? ("· updated " + docUpdated) : "";
+    metaEl.hidden = false;
+
+    clearRegion();
+    if (!cards.length) {
+      showEmptyState();
+      return;
+    }
+    var grid = el("div", "cards");
+    for (var j = 0; j < cards.length; j++) grid.appendChild(cards[j]);
+    region.appendChild(grid);
+    advisoryNote.hidden = false;
+  }
+
+  function finish() { region.setAttribute("aria-busy", "false"); }
+
+  fetch("./catalog.json", { cache: "no-cache" })
+    .then(function (resp) {
+      if (!resp.ok) {
+        throw new Error("HTTP " + resp.status + " " + resp.statusText);
+      }
+      return resp.json();
+    })
+    .then(function (doc) {
+      if (!doc || typeof doc !== "object" || Array.isArray(doc)) {
+        throw new Error("catalog root is not a JSON object");
+      }
+      renderCatalog(doc);
+    })
+    .catch(function (err) {
+      showErrorState(err && err.message ? err.message : err);
+    })
+    .then(finish, finish);
+})();
+</script>
+</body>
+</html>

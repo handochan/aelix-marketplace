@@ -1,0 +1,55 @@
+# Deploy the aelix marketplace (index.html + catalog.json) to GitHub Pages.
+#
+# One-time manual step (required): the repository owner must enable Pages from
+# the GitHub Actions source once, or this workflow's deploy step will fail:
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+#
+# After that, every push to `main` publishes the repository ROOT as the static
+# site, so BOTH the homepage (index.html) and the catalog (catalog.json) are
+# served at the Pages origin:
+#   https://handochan.github.io/aelix-marketplace/            (index.html)
+#   https://handochan.github.io/aelix-marketplace/catalog.json
+#
+# Actions are SHA-pinned (supply-chain hygiene); the trailing comment records
+# the human-readable version each SHA corresponds to.
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  # Allow a manual re-deploy from the Actions tab without a new commit.
+  workflow_dispatch:
+
+# Least-privilege token: Pages deploy needs only these two scopes.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One in-flight deployment at a time; never cancel a running publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Upload site artifact (repository root)
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          # Publish the repo root so index.html AND catalog.json ship verbatim.
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

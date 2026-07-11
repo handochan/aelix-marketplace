@@ -1,0 +1,49 @@
+name: validate-catalog
+
+# Runs the authoritative catalog validator on every change. Because
+# scripts/validate_catalog.py imports the REAL parser
+# (aelix_coding_agent.cli.extension_catalog.parse_catalog) and asserts that it
+# keeps every entry, a merged catalog.json is guaranteed to parse exactly as
+# aelix will read it -- the published catalog is authoritative-validated, not
+# merely schema-valid.
+
+on:
+  push:
+    paths:
+      - "catalog.json"
+      - "catalog.schema.json"
+      - "scripts/validate_catalog.py"
+      - ".github/workflows/validate-catalog.yml"
+  pull_request:
+    paths:
+      - "catalog.json"
+      - "catalog.schema.json"
+      - "scripts/validate_catalog.py"
+      - ".github/workflows/validate-catalog.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # actions/setup-python v5.3.0
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        # aelix-coding-agent is NOT on PyPI during beta, so it is installed from
+        # the source repo subdirectory. Once it publishes to PyPI this can become
+        # `pip install aelix-coding-agent jsonschema`.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install jsonschema
+          python -m pip install "git+https://github.com/handochan/aelix-ai.git#subdirectory=packages/aelix-coding-agent"
+
+      - name: Validate catalog
+        run: python scripts/validate_catalog.py
