@@ -62,7 +62,8 @@ source:
 
 ```bash
 aelix extension source add --catalog https://handochan.github.io/aelix-marketplace/catalog.json
-aelix extension discover                 # browse
+aelix extension discover --refresh       # fetch it into the local cache
+aelix extension discover                 # browse the cached snapshot
 aelix extension discover install <name>  # resolve + install (with consent)
 ```
 

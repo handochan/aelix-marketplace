@@ -131,11 +131,17 @@ The validator does three things:
 
 ## Maintainer: signing the catalog
 
-The published `catalog.json` is **signed out-of-band** by the owner with an
-Ed25519 key, producing a detached `catalog.json.aelixsig` sidecar served beside
-it. This lets a user (or an enterprise) require a valid signature before trusting
-the catalog document. Contributors do **not** sign; the owner re-signs after
-merging.
+> **Not yet in effect.** This catalog is **currently unsigned** — no
+> `catalog.json.aelixsig` is published and the sidecar URL returns 404. Aelix
+> admits an unsigned default catalog best-effort over TLS (`FIRST_PARTY_KEYS`
+> ships empty), so nothing is broken; but read the procedure below as intent,
+> not as a guarantee already running.
+
+The intended scheme: `catalog.json` is **signed out-of-band** by the owner with
+an Ed25519 key, producing a detached `catalog.json.aelixsig` sidecar served
+beside it. This lets a user (or an enterprise) require a valid signature before
+trusting the catalog document. Contributors do **not** sign; the owner re-signs
+after merging.
 
 ```bash
 # One-time: generate a signing key. Prints the keyId to sign with.

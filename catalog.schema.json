@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://handochan.github.io/aelix-marketplace/catalog.schema.json",
-  "title": "aelix extension catalog",
-  "description": "An advisory catalog document listing aelix extensions available to install. The catalog only chooses WHAT to install; the real trust boundary is the install-time consent prompt, verify_and_pin (integrity pin), and the optional Ed25519 signature. Being listed here is NOT an endorsement of safety.",
+  "title": "Aelix extension catalog",
+  "description": "An advisory catalog document listing Aelix extensions available to install. The catalog only chooses WHAT to install; the real trust boundary is the install-time consent prompt, verify_and_pin (integrity pin), and the optional Ed25519 signature. Being listed here is NOT an endorsement of safety.",
   "$comment": "This schema is a CONTRIBUTOR AID only. The RUNTIME authority is aelix_coding_agent.cli.extension_catalog.parse_catalog, which parses leniently (unknown keys ignored; an entry missing name-or-source, or whose source contains control characters, is silently skipped with a warning). scripts/validate_catalog.py runs parse_catalog and asserts the parsed entry count equals the number of array entries, so a silently-dropped entry fails CI. Where this schema is stricter than parse_catalog (e.g. the sha256 hex pattern), the stricter rule is intentional and applies only in CI.",
   "type": "object",
   "required": ["schemaVersion", "extensions"],
