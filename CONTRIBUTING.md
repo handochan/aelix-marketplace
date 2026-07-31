@@ -1,6 +1,6 @@
-# Contributing to the aelix extension catalog
+# Contributing to the Aelix extension catalog
 
-This repository holds the **official advisory catalog** for [aelix](https://github.com/handochan/aelix-ai)
+This repository holds the **official advisory catalog** for [Aelix](https://handochan.github.io/aelix-ai/)
 extensions: a single `catalog.json` document that lists extensions users can
 discover and install. This guide explains how to add an entry, what each field
 means, and the security model you are contributing into.
@@ -70,7 +70,7 @@ it into exactly one of three forms:
    A bare `aelix-ext-foo` (unpinned) is accepted but resolves to whatever is
    latest at install time.
 
-> `sha256` is **display-only**. It is *never* written to aelix's integrity pin
+> `sha256` is **display-only**. It is *never* written to Aelix's integrity pin
 > store and *never* means "verified". Do not treat it as a checksum gate — it is
 > shown to users purely as informational metadata. Real integrity comes from the
 > install-time gate described below.
@@ -85,7 +85,7 @@ boundary is at **install time**, not at listing time:
   exactly what will be fetched. This is why `source` must point at the genuine
   upstream: a typosquatted `name` cannot hide a look-alike `source` — the user
   sees the real spec.
-- **Integrity pin (`verify_and_pin`).** On first install aelix records an
+- **Integrity pin (`verify_and_pin`).** On first install Aelix records an
   integrity pin (trust-on-first-install) and enforces it on later installs, so a
   source that later serves different bytes is flagged.
 - **Optional Ed25519 signature.** Extensions (and this catalog itself) can be
@@ -139,7 +139,7 @@ merging.
 
 ```bash
 # One-time: generate a signing key. Prints the keyId to sign with.
-aelix extension keygen --label "aelix official catalog"
+aelix extension keygen --label "Aelix official catalog"
 
 # After merging a catalog change, sign the document with that key. This writes
 # catalog.json.aelixsig next to catalog.json.
@@ -147,4 +147,4 @@ aelix extension sign catalog.json --key <keyId> --kind catalog
 ```
 
 The `.aelixsig` sidecar is committed/published beside `catalog.json` (at the same
-URL with the `.aelixsig` suffix) so aelix can fetch it over the same transport.
+URL with the `.aelixsig` suffix) so Aelix can fetch it over the same transport.

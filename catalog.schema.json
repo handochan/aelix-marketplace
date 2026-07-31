@@ -13,7 +13,7 @@
     },
     "name": {
       "type": "string",
-      "description": "Optional human-readable catalog label shown in the aelix TUI (e.g. \"aelix official catalog\")."
+      "description": "Optional human-readable catalog label shown in the Aelix TUI (e.g. \"Aelix official catalog\")."
     },
     "updated": {
       "type": "string",

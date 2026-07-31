@@ -2,14 +2,17 @@
   <img src="https://raw.githubusercontent.com/handochan/aelix-ai/main/docs/assets/brand/lockup-stacked.png" width="300" alt="Aelix — the A×X mark above the Aelix wordmark">
 </p>
 
-# aelix-marketplace
+# Aelix Marketplace
 
-The **official advisory catalog** for [aelix](https://github.com/handochan/aelix-ai)
-extensions.
+The **official advisory catalog** for [Aelix](https://handochan.github.io/aelix-ai/)
+extensions. Browse it at
+**[handochan.github.io/aelix-marketplace](https://handochan.github.io/aelix-marketplace/)**;
+the Aelix runtime itself lives at
+[github.com/handochan/aelix-ai](https://github.com/handochan/aelix-ai).
 
 This repository publishes a single document, [`catalog.json`](catalog.json),
-that lists extensions aelix users can discover and install. It is served as a
-static file over GitHub Pages and consumed by aelix's `extension discover`
+that lists extensions Aelix users can discover and install. It is served as a
+static file over GitHub Pages and consumed by Aelix's `extension discover`
 command.
 
 It currently ships **empty** (`"extensions": []`) — the honest starting state.
@@ -27,7 +30,7 @@ add one.
 | ---- | ------- |
 | [`catalog.json`](catalog.json) | The catalog document itself. |
 | [`catalog.schema.json`](catalog.schema.json) | JSON Schema (draft 2020-12) for the document — a contributor aid. |
-| [`scripts/validate_catalog.py`](scripts/validate_catalog.py) | Validator run in CI; parses with the real aelix parser. |
+| [`scripts/validate_catalog.py`](scripts/validate_catalog.py) | Validator run in CI; parses with the real Aelix parser. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to add an entry; field reference; security model. |
 
 The catalog format is:
@@ -35,8 +38,8 @@ The catalog format is:
 ```json
 {
   "schemaVersion": 1,
-  "name": "aelix official catalog",
-  "updated": "2026-01-01T00:00:00Z",
+  "name": "Aelix official catalog",
+  "updated": "2026-07-31T00:00:00Z",
   "extensions": []
 }
 ```
@@ -45,14 +48,14 @@ Each entry in `extensions` requires a `name` and a `source`; the `source` is a
 `path`, a `git+url[@40-hex-sha]`, or a `pypi-name[==version]` spec. See
 [CONTRIBUTING.md](CONTRIBUTING.md#entry-fields) for the full field reference.
 
-> The **runtime authority** for the format is aelix's
+> The **runtime authority** for the format is Aelix's
 > `aelix_coding_agent.cli.extension_catalog.parse_catalog`, not the JSON Schema.
 > The schema mirrors it as a convenience; where they differ, the parser wins.
 
-## How aelix consumes it
+## How Aelix consumes it
 
-aelix reads a catalog as an **advisory source** (`kind="catalog"`), separate
-from an install *source*. There are two ways to point aelix at this catalog.
+Aelix reads a catalog as an **advisory source** (`kind="catalog"`), separate
+from an install *source*. There are two ways to point Aelix at this catalog.
 
 **1. Register it explicitly.** Any user can add a catalog by URL, file, or git
 source:
@@ -63,17 +66,43 @@ aelix extension discover                 # browse
 aelix extension discover install <name>  # resolve + install (with consent)
 ```
 
-**2. Built-in default.** aelix has a dormant default-catalog slot,
-`DEFAULT_CATALOG_URL`, overridable per-run by the `AELIX_DEFAULT_CATALOG`
-environment variable. In the beta it is **empty (dormant)** — no first-party
-catalog ships enabled. When the owner turns it on, it points here:
+**2. Built-in default.** Aelix ships with `DEFAULT_CATALOG_URL` **already pointing
+at this catalog** — it is not an empty placeholder:
 
-- Primary (Pages / CDN): `https://handochan.github.io/aelix-marketplace/catalog.json`
-- Fallback (raw): `https://raw.githubusercontent.com/handochan/aelix-marketplace/main/catalog.json`
+```
+https://handochan.github.io/aelix-marketplace/catalog.json
+```
 
-An enterprise can repoint the default at its own internal catalog with
-`AELIX_DEFAULT_CATALOG=...`, or disable it for a run with
-`aelix extension discover --no-default-catalog`.
+Nothing is fetched implicitly, though. `aelix extension discover` reads the local
+cache and never touches the network; the fetch happens only on an explicit
+refresh:
+
+```bash
+aelix extension discover --refresh   # fetch every registered catalog + this default
+aelix extension discover             # browse the cached snapshot (no network)
+```
+
+So the default is **opt-out at refresh time**: a user who refreshes without
+configuring anything gets this catalog. Being listed here still means nothing
+about safety (see [The trust model](#the-trust-model)); the default only decides
+which document Aelix *reads*, never what it installs. An empty catalog is a
+successful fetch, not a broken one.
+
+Three independent ways to switch it off:
+
+- `AELIX_DEFAULT_CATALOG=<url>` repoints the default — an enterprise aims it at
+  an internal catalog. An **empty** value disables it for that run.
+- `aelix extension discover --no-default-catalog` skips it for a single command.
+- `aelix extension source remove <default>` writes a persistent tombstone.
+
+`aelix extension discover --offline` skips it too, along with every other network
+source. (Flags belong after the `extension` verb — `aelix --offline extension …`
+is not dispatched as an extension command.)
+
+The raw address
+`https://raw.githubusercontent.com/handochan/aelix-marketplace/main/catalog.json`
+serves the same document and can be registered by hand, but Aelix has no
+automatic fallback to it — the default is the single Pages URL above.
 
 ## The trust model
 
@@ -84,7 +113,7 @@ The trust boundary is at **install time**:
   source spec and asks `y/N` before fetching anything — so a user always sees
   exactly what will be installed (a typosquatted name cannot disguise a
   look-alike source).
-- **Integrity pin.** aelix records an integrity pin on first install and
+- **Integrity pin.** Aelix records an integrity pin on first install and
   enforces it thereafter (trust-on-first-install).
 - **Optional Ed25519 signature.** Extensions — and this catalog document itself
   — can be signed; users can require a valid signature from a trusted key.
@@ -92,21 +121,30 @@ The trust boundary is at **install time**:
 An entry's optional `sha256` is **display-only**: it is never written to the pin
 store and never means "verified".
 
-This design follows aelix's advisory-catalog decision (ADR-0188) and its
+This design follows Aelix's advisory-catalog decision (ADR-0188) and its
 transport-security hardening (ADR-0192): the catalog is fetched over TLS-only
 `https` (or `file://` / git for air-gapped/intranet use), and a catalog can be
 signed so its authenticity is independently checkable.
 
 ## Signing (maintainer)
 
-The published `catalog.json` is **signed out-of-band** by the owner with an
-Ed25519 key. The detached signature is a `catalog.json.aelixsig` sidecar served
-at the same URL with the `.aelixsig` suffix, so aelix can fetch it over the same
-transport and verify the document before trusting it.
+> **Not yet in effect.** This catalog is **currently unsigned** — no
+> `catalog.json.aelixsig` is published, and
+> `https://handochan.github.io/aelix-marketplace/catalog.json.aelixsig` returns
+> 404. Aelix admits an unsigned default catalog best-effort over TLS
+> (`FIRST_PARTY_KEYS` ships empty), so nothing is broken; but do not read the
+> procedure below as a guarantee that is already running. It is what the owner
+> will do, not what has been done.
+
+The intended scheme: `catalog.json` is **signed out-of-band** by the owner with
+an Ed25519 key. The detached signature is a `catalog.json.aelixsig` sidecar
+served at the same URL with the `.aelixsig` suffix, so Aelix can fetch it over
+the same transport and verify the document before trusting it. Publishing the
+key in `FIRST_PARTY_KEYS` upgrades the default from best-effort to fail-closed.
 
 ```bash
 # One-time: generate a signing key; prints the keyId.
-aelix extension keygen --label "aelix official catalog"
+aelix extension keygen --label "Aelix official catalog"
 
 # After every catalog change: re-sign the document (writes catalog.json.aelixsig).
 aelix extension sign catalog.json --key <keyId> --kind catalog
