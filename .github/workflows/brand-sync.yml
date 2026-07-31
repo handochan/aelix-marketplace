@@ -1,0 +1,54 @@
+name: brand-sync
+
+# The brand vectors under assets/ are COPIES. The single source of truth is
+# handochan/aelix-ai:docs/assets/brand/ -- BRAND.md is explicit that those files
+# are the identity and nothing else is. A copy with no guard drifts silently:
+# the day someone re-cuts the wordmark upstream, this site keeps serving the old
+# one and the two properties stop matching without anyone noticing.
+#
+# Deliberately NOT wired to pull_request. A catalog contributor must never see a
+# red check because an unrelated brand asset moved upstream; this is a
+# maintainer signal, so it runs on pushes that touch assets/, weekly, and on
+# demand.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/**"
+      - ".github/workflows/brand-sync.yml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Compare assets/ against the canonical aelix-ai brand kit
+        run: |
+          set -eu
+          base="https://raw.githubusercontent.com/handochan/aelix-ai/main/docs/assets/brand"
+          fail=0
+          for f in favicon.svg mark.svg lockup-dark.svg social-card.png; do
+            if ! curl -fsSL --retry 3 "$base/$f" -o "$RUNNER_TEMP/$f"; then
+              echo "::error::could not fetch the canonical $f from $base"
+              fail=1
+              continue
+            fi
+            if cmp -s "$RUNNER_TEMP/$f" "assets/$f"; then
+              printf 'ok       assets/%s\n' "$f"
+            else
+              echo "::error file=assets/$f::assets/$f has drifted from the canonical copy."
+              printf 'DRIFTED  assets/%s\n         fix: curl -fsSL %s/%s -o assets/%s\n' \
+                "$f" "$base" "$f" "$f"
+              fail=1
+            fi
+          done
+          exit "$fail"

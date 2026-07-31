@@ -3,59 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aelix marketplace</title>
-<meta name="description" content="Community catalog of extensions for aelix — an auditable, self-hostable agent runtime and extension platform in pure Python.">
+<title>Aelix Marketplace — extensions for Aelix</title>
+<meta name="description" content="The official catalog of extensions for Aelix — an agent runtime and extension platform in pure Python. Self-hosted, auditable, air-gap ready.">
+<link rel="canonical" href="https://handochan.github.io/aelix-marketplace/">
+<meta name="theme-color" content="#0B0F14">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://handochan.github.io/aelix-marketplace/">
+<meta property="og:title" content="Aelix Marketplace — extensions for Aelix">
+<meta property="og:description" content="The official catalog of extensions for Aelix, an agent runtime and extension platform in pure Python.">
+<meta property="og:image" content="https://handochan.github.io/aelix-marketplace/assets/social-card.png">
+<meta property="og:image:alt" content="Aelix — the A×X mark beside the Aelix wordmark, above the line “Your own agent world — built on the Python ecosystem”">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <style>
-  /* ---- Theme tokens: legible in both light and dark ------------------ */
+  /* ---- Theme tokens --------------------------------------------------
+     Dark-locked, matching https://handochan.github.io/aelix-ai/ token for
+     token, so moving between the two properties has no seam. Aelix brand
+     palette — glow #22D3EE, current #06B6D4, deep #0E7490, ink #0B1220,
+     ground #0B0F14, paper #F6FAFB. Measured contrast on the ground: body
+     12.86:1, headings 18.29:1, muted 6.25:1, accent 10.63:1; on the elevated
+     surface 12.16:1 and 5.91:1; ink-on-accent 10.36:1 — all clear AA. */
   :root {
-    color-scheme: light dark;
-    /* Aelix brand palette — glow #22D3EE, current #06B6D4, deep #0E7490,
-       ink #0B1220, ground #0B0F14, paper #F6FAFB. The accent is picked per
-       theme so both pairings clear WCAG AA: deep-on-paper 5.10:1 and
-       white-on-deep 5.36:1 here, glow-on-ground 10.63:1 in dark below. */
-    --bg: #ffffff;
-    --bg-elev: #F6FAFB;
-    --bg-code: #eef4f6;
-    --fg: #0B1220;
-    --fg-muted: #55707D;
-    --border: #DCE7EA;
-    --border-strong: #c3d4d9;
-    --accent: #0E7490;
-    --accent-fg: #ffffff;
-    --chip-bg: #eaf2f4;
-    --chip-fg: #3f5a64;
-    --advisory-bg: #fff4e0;
-    --advisory-fg: #7a4d00;
-    --advisory-border: #e6c17a;
-    --error-bg: #fdecec;
-    --error-fg: #8a1f1f;
-    --error-border: #e6a5a5;
-    --focus: #0E7490;
-    --radius: 10px;
-    --maxw: 960px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0B0F14;
-      --bg-elev: #10161E;
-      --bg-code: #0d141c;
-      --fg: #E6F6F9;
-      --fg-muted: #7E97A1;
-      --border: #1E2A34;
-      --border-strong: #2b3a46;
-      --accent: #22D3EE;
-      --accent-fg: #0B1220;
-      --chip-bg: #16202a;
-      --chip-fg: #b6c9d0;
-      --advisory-bg: #2a2213;
-      --advisory-fg: #e3b872;
-      --advisory-border: #5a4a26;
-      --error-bg: #2a1414;
-      --error-fg: #f0a3a3;
-      --error-border: #5a2a2a;
-      --focus: #22D3EE;
-    }
+    color-scheme: dark;
+    --bg: #0B0F14;
+    --bg-elev: #10161E;
+    --bg-code: #0d141c;
+    --fg: #C6D6DC;
+    --fg-strong: #F6FAFB;
+    --fg-muted: #7E97A1;
+    --border: #1E2A34;
+    --border-strong: #2b3a46;
+    --accent: #22D3EE;
+    --accent-fg: #0B1220;
+    --chip-bg: #16202a;
+    --chip-fg: #b6c9d0;
+    --advisory-bg: #2a2213;
+    --advisory-fg: #e3b872;
+    --advisory-border: #5a4a26;
+    --error-bg: #2a1414;
+    --error-fg: #f0a3a3;
+    --error-border: #5a2a2a;
+    --focus: #22D3EE;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    /* Geometry shared with the homepage: 1060px measure, 24px gutter,
+       12px card radius. */
+    --radius: 12px;
+    --maxw: 1060px;
   }
 
   /* ---- Reset / base -------------------------------------------------- */
@@ -65,14 +58,12 @@
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+    /* Same body stack and leading as the homepage — the other half of the
+       token-parity job. */
+    font: 16px/1.65 system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     overflow-x: hidden; /* body never scrolls horizontally */
   }
-  code, pre, .mono {
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-                 "Liberation Mono", monospace;
-  }
+  code, pre, .mono { font-family: var(--mono); }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   :focus-visible {
@@ -80,9 +71,9 @@
     outline-offset: 2px;
     border-radius: 4px;
   }
-  h1, h2, h3 { line-height: 1.25; }
+  h1, h2, h3 { line-height: 1.25; color: var(--fg-strong); }
 
-  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
   .skip-link {
     position: absolute;
@@ -110,26 +101,40 @@
     padding-top: 14px;
     padding-bottom: 14px;
   }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .brand .mark { width: 26px; height: 26px; display: block; flex: none; }
-  .brand .name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
-  .brand .tag { color: var(--fg-muted); font-size: 0.9rem; }
+  /* The wordmark is the brand's own vector, never re-set in a system face.
+     BRAND.md's floor is ~32px of LOCKUP, and the artwork fills only 192 of the
+     952x272 viewBox's 272 vertical units — so the box has to be 32 * 272/192
+     = 45px for the lockup itself to clear the floor. 158px keeps the 3.5:1. */
+  .brand { display: flex; align-items: center; gap: 14px; min-width: 0; flex-wrap: wrap; }
+  .brand .home { display: block; flex: none; line-height: 0; }
+  .brand .home:hover { text-decoration: none; opacity: 0.85; }
+  .brand .lockup { width: 158px; height: 45px; display: block; }
+  .brand .sep { color: var(--fg-muted); flex: none; user-select: none; }
+  .brand .name {
+    font-family: var(--mono); font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--fg-strong);
+  }
   nav.top a { color: var(--fg-muted); font-size: 0.92rem; margin-left: 18px; }
   nav.top a:first-child { margin-left: 0; }
+  nav.top a:hover { color: var(--fg-strong); }
 
   /* ---- Hero ---------------------------------------------------------- */
   .hero { padding: 56px 0 40px; }
+  /* Same headline voice as the homepage: monospace chrome, paper ink. */
   .hero h1 {
     margin: 0 0 14px;
-    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    font-family: var(--mono);
+    font-size: clamp(22px, 3.6vw, 34px);
+    line-height: 1.3;
     letter-spacing: -0.02em;
   }
   .hero p.lead {
     margin: 0 0 8px;
-    max-width: 44ch;
-    font-size: 1.12rem;
+    max-width: 62ch;
+    font-size: 1.06rem;
     color: var(--fg);
   }
+  .hero p.lead b { color: var(--fg-strong); font-weight: 600; }
   .hero p.sub {
     margin: 0 0 28px;
     max-width: 60ch;
@@ -198,7 +203,12 @@
   /* ---- Sections ------------------------------------------------------ */
   section { padding: 8px 0; }
   .section-head { margin: 36px 0 6px; }
-  .section-head h2 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .section-head h2 {
+    margin: 0 0 16px;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--fg-muted);
+    border-bottom: 1px solid var(--border); padding-bottom: 10px;
+  }
   .section-head p { margin: 0; color: var(--fg-muted); max-width: 66ch; }
 
   .divider { height: 1px; background: var(--border); border: 0; margin: 40px 0; }
@@ -212,6 +222,7 @@
     margin: 16px 0 4px;
     font-size: 0.9rem;
     color: var(--fg-muted);
+    overflow-wrap: anywhere;
   }
   .catalog-meta .count {
     font-weight: 600;
@@ -227,6 +238,7 @@
   }
   .state h3 { margin: 0 0 8px; font-size: 1.1rem; }
   .state p { margin: 0 0 6px; color: var(--fg-muted); }
+  .state .state-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
   .state.error {
     background: var(--error-bg);
     border-color: var(--error-border);
@@ -302,7 +314,7 @@
     color: var(--chip-fg);
     max-width: 100%;
   }
-  .chip.version { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .chip.version { font-family: var(--mono); }
   .chip.advisory {
     background: var(--advisory-bg);
     color: var(--advisory-fg);
@@ -310,7 +322,7 @@
     cursor: help;
   }
   .chip.advisory .sha {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--mono);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -340,6 +352,19 @@
   footer.site a { color: var(--fg-muted); text-decoration: underline; }
   footer.site a:hover { color: var(--accent); }
   .foot-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 10px; }
+  /* One anchor, not two adjacent ones to the same place. The selector must
+     carry `footer.site a` specificity or the footer underline rule wins. */
+  footer.site a.foot-brand {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin: 0 0 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border);
+    text-decoration: none; color: var(--fg-muted);
+  }
+  footer.site a.foot-brand:hover { text-decoration: none; }
+  /* Below BRAND.md's lockup floor the mark goes alone — so the footer uses the
+     mark, not a shrunken lockup. */
+  .foot-brand img { width: 32px; height: 32px; display: block; flex: none; }
+  .foot-brand .line { font-family: var(--mono); font-size: 0.86rem; }
+  .foot-brand:hover .line { color: var(--accent); }
 
   .visually-hidden {
     position: absolute;
@@ -356,14 +381,18 @@
 <header class="site">
   <div class="wrap site-inner">
     <div class="brand">
-      <img class="mark" src="assets/mark.svg" alt="" width="26" height="26">
-      <span class="name">aelix marketplace</span>
-      <span class="tag">extension catalog</span>
+      <a class="home" href="https://handochan.github.io/aelix-ai/" rel="noopener"
+         aria-label="Aelix home">
+        <img class="lockup" src="assets/lockup-dark.svg" alt="Aelix"
+             width="158" height="45">
+      </a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span class="name">Marketplace</span>
     </div>
     <nav class="top" aria-label="Primary">
       <a href="#catalog">Catalog</a>
       <a href="https://github.com/handochan/aelix-marketplace" rel="noopener">Repository</a>
-      <a href="https://github.com/handochan/aelix-ai" rel="noopener">aelix</a>
+      <a href="https://handochan.github.io/aelix-ai/" rel="noopener">Aelix&nbsp;→</a>
     </nav>
   </div>
 </header>
@@ -372,25 +401,26 @@
   <!-- (1) Landing hero -------------------------------------------------- -->
   <section class="hero">
     <div class="wrap">
-      <h1>Extensions for aelix</h1>
-      <p class="lead">aelix is an auditable, self-hostable agent runtime and extension platform in pure Python.</p>
+      <h1>Extensions for Aelix</h1>
+      <p class="lead">Aelix is an <b>agent runtime and extension platform</b> in pure Python —
+        self-hosted, auditable, and extensible in the language your team already writes.</p>
       <p class="sub">
-        This is the community catalog of extensions you can install into aelix.
+        This is the official catalog of extensions you can install into Aelix.
         The catalog only decides <em>what</em> to install — every install still
-        goes through aelix's own consent prompt, integrity pin, and signature
+        goes through Aelix's own consent prompt, integrity pin, and signature
         checks on your machine.
       </p>
 
-      <ul class="traits" aria-label="What aelix is">
+      <ul class="traits" aria-label="What Aelix is">
         <li>Auditable</li>
         <li>Self-hostable</li>
-        <li>Signed releases</li>
+        <li>Signed extensions</li>
         <li>Runs in your terminal</li>
         <li>Works air-gapped</li>
       </ul>
 
       <div class="install">
-        <span class="label" id="install-label">Install aelix</span>
+        <span class="label" id="install-label">Install Aelix</span>
         <div class="cmd" role="group" aria-labelledby="install-label">
           <pre><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/handochan/aelix-ai/main/install.sh | sh</code></pre>
           <button class="copy" type="button" id="copy-btn"
@@ -398,7 +428,10 @@
         </div>
         <p class="note">
           Review the script before piping it to a shell — that is the honest way
-          to run any <code>curl | sh</code> installer. The aelix source lives at
+          to run any <code>curl | sh</code> installer. Every <em>Aelix</em> wheel is
+          verified against the release's <code>SHA256SUMS</code> manifest and a
+          mismatch aborts; third-party dependencies resolve from PyPI as usual.
+          The Aelix source lives at
           <a href="https://github.com/handochan/aelix-ai" rel="noopener">github.com/handochan/aelix-ai</a>.
         </p>
       </div>
@@ -435,7 +468,7 @@
       <p class="advisory-foot" id="advisory-note" hidden>
         <strong>About the sha256 chip:</strong> the hash shown on a card is a
         <strong>display-only advisory</strong> value copied from the catalog entry.
-        It is <strong>not</strong> a verified trust signal — aelix does not treat a
+        It is <strong>not</strong> a verified trust signal — Aelix does not treat a
         catalog-supplied hash as proof of anything. Real integrity comes from the
         install-time consent prompt, the on-disk integrity pin, and the extension's
         own Ed25519 signature, all checked on your machine.
@@ -446,10 +479,15 @@
 
 <footer class="site">
   <div class="wrap">
+    <a class="foot-brand" href="https://handochan.github.io/aelix-ai/" rel="noopener">
+      <img src="assets/mark.svg" alt="" width="32" height="32">
+      <span class="line">Aelix — your own agent world, built on the Python ecosystem&nbsp;→</span>
+    </a>
     <div class="foot-links">
+      <a href="https://handochan.github.io/aelix-ai/" rel="noopener">Aelix home</a>
       <a href="https://github.com/handochan/aelix-marketplace" rel="noopener">Marketplace repository</a>
       <a href="https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md" rel="noopener">Contribute an extension</a>
-      <a href="https://github.com/handochan/aelix-ai" rel="noopener">aelix source</a>
+      <a href="https://github.com/handochan/aelix-ai" rel="noopener">Aelix source</a>
       <a href="./catalog.json">catalog.json</a>
     </div>
     <p>
@@ -619,19 +657,29 @@
     while (region.firstChild) region.removeChild(region.firstChild);
   }
 
+  // The empty state is what every visitor sees today, so it has to be a
+  // junction rather than a dead end: one route to authoring, one back to Aelix.
   function showEmptyState() {
     clearRegion();
     var box = el("div", "state");
     box.appendChild(el("h3", null, "No extensions listed yet"));
     box.appendChild(el("p", null,
-      "This catalog is currently empty. You can contribute an extension by " +
-      "opening a pull request."));
-    var p = el("p");
-    var link = el("a", null, "How to contribute an extension ↗");
-    link.setAttribute("href",
-      "https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md");
-    link.setAttribute("rel", "noopener");
-    p.appendChild(link);
+      "This catalog is open for submissions and ships empty on purpose — an " +
+      "entry appears here only after someone contributes it. An Aelix extension " +
+      "is a plain Python function, so writing one is short work."));
+    var p = el("p", "state-links");
+    [
+      ["Write an extension →",
+       "https://github.com/handochan/aelix-ai/blob/main/docs/guides/extension-authoring.md"],
+      ["Submit it to this catalog →",
+       "https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md"],
+      ["Back to Aelix →", "https://handochan.github.io/aelix-ai/"]
+    ].forEach(function (pair) {
+      var link = el("a", null, pair[0]);
+      link.setAttribute("href", pair[1]);
+      link.setAttribute("rel", "noopener");
+      p.appendChild(link);
+    });
     box.appendChild(p);
     region.appendChild(box);
   }
@@ -665,7 +713,11 @@
     countEl.textContent = cards.length === 1
       ? "1 extension" : (cards.length + " extensions");
     nameEl.textContent = docName ? ("· " + docName) : "";
-    updatedEl.textContent = docUpdated ? ("· updated " + docUpdated) : "";
+    // Show the calendar day, not a raw ISO instant; anything that is not an
+    // ISO date falls through unchanged (catalog strings are untrusted).
+    var day = (docUpdated && /^\d{4}-\d{2}-\d{2}/.test(docUpdated))
+      ? docUpdated.slice(0, 10) : docUpdated;
+    updatedEl.textContent = day ? ("· updated " + day) : "";
     metaEl.hidden = false;
 
     clearRegion();
