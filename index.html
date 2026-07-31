@@ -4,52 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>aelix marketplace</title>
-<meta name="description" content="Community catalog of extensions for aelix — an auditable, self-hostable, signed terminal coding agent.">
+<meta name="description" content="Community catalog of extensions for aelix — an auditable, self-hostable agent runtime and extension platform in pure Python.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <style>
   /* ---- Theme tokens: legible in both light and dark ------------------ */
   :root {
     color-scheme: light dark;
+    /* Aelix brand palette — glow #22D3EE, current #06B6D4, deep #0E7490,
+       ink #0B1220, ground #0B0F14, paper #F6FAFB. The accent is picked per
+       theme so both pairings clear WCAG AA: deep-on-paper 5.10:1 and
+       white-on-deep 5.36:1 here, glow-on-ground 10.63:1 in dark below. */
     --bg: #ffffff;
-    --bg-elev: #f6f7f9;
-    --bg-code: #f0f2f5;
-    --fg: #1a1d23;
-    --fg-muted: #5a6472;
-    --border: #d9dee6;
-    --border-strong: #c2c9d4;
-    --accent: #1f6feb;
+    --bg-elev: #F6FAFB;
+    --bg-code: #eef4f6;
+    --fg: #0B1220;
+    --fg-muted: #55707D;
+    --border: #DCE7EA;
+    --border-strong: #c3d4d9;
+    --accent: #0E7490;
     --accent-fg: #ffffff;
-    --chip-bg: #eef1f5;
-    --chip-fg: #46505f;
+    --chip-bg: #eaf2f4;
+    --chip-fg: #3f5a64;
     --advisory-bg: #fff4e0;
     --advisory-fg: #7a4d00;
     --advisory-border: #e6c17a;
     --error-bg: #fdecec;
     --error-fg: #8a1f1f;
     --error-border: #e6a5a5;
-    --focus: #1f6feb;
+    --focus: #0E7490;
     --radius: 10px;
     --maxw: 960px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0d1117;
-      --bg-elev: #161b22;
-      --bg-code: #10151d;
-      --fg: #e6edf3;
-      --fg-muted: #9aa5b1;
-      --border: #2a313c;
-      --border-strong: #3a424e;
-      --accent: #4a9eff;
-      --accent-fg: #06121f;
-      --chip-bg: #1e2530;
-      --chip-fg: #b6c0cc;
+      --bg: #0B0F14;
+      --bg-elev: #10161E;
+      --bg-code: #0d141c;
+      --fg: #E6F6F9;
+      --fg-muted: #7E97A1;
+      --border: #1E2A34;
+      --border-strong: #2b3a46;
+      --accent: #22D3EE;
+      --accent-fg: #0B1220;
+      --chip-bg: #16202a;
+      --chip-fg: #b6c9d0;
       --advisory-bg: #2a2213;
       --advisory-fg: #e3b872;
       --advisory-border: #5a4a26;
       --error-bg: #2a1414;
       --error-fg: #f0a3a3;
       --error-border: #5a2a2a;
-      --focus: #4a9eff;
+      --focus: #22D3EE;
     }
   }
 
@@ -105,7 +110,8 @@
     padding-top: 14px;
     padding-bottom: 14px;
   }
-  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 26px; height: 26px; display: block; flex: none; }
   .brand .name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
   .brand .tag { color: var(--fg-muted); font-size: 0.9rem; }
   nav.top a { color: var(--fg-muted); font-size: 0.92rem; margin-left: 18px; }
@@ -350,6 +356,7 @@
 <header class="site">
   <div class="wrap site-inner">
     <div class="brand">
+      <img class="mark" src="assets/mark.svg" alt="" width="26" height="26">
       <span class="name">aelix marketplace</span>
       <span class="tag">extension catalog</span>
     </div>
@@ -366,7 +373,7 @@
   <section class="hero">
     <div class="wrap">
       <h1>Extensions for aelix</h1>
-      <p class="lead">aelix is an auditable, self-hostable, signed terminal coding agent.</p>
+      <p class="lead">aelix is an auditable, self-hostable agent runtime and extension platform in pure Python.</p>
       <p class="sub">
         This is the community catalog of extensions you can install into aelix.
         The catalog only decides <em>what</em> to install — every install still

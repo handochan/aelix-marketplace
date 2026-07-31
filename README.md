@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/handochan/aelix-ai/main/docs/assets/brand/lockup-stacked.png" width="300" alt="Aelix — the A×X mark above the Aelix wordmark">
+</p>
+
 # aelix-marketplace
 
 The **official advisory catalog** for [aelix](https://github.com/handochan/aelix-ai)
@@ -5,8 +9,8 @@ extensions.
 
 This repository publishes a single document, [`catalog.json`](catalog.json),
 that lists extensions aelix users can discover and install. It is served as a
-static file over GitHub Pages and consumed by the aelix coding agent's
-`extension discover` command.
+static file over GitHub Pages and consumed by aelix's `extension discover`
+command.
 
 It currently ships **empty** (`"extensions": []`) — the honest starting state.
 No extensions have been curated yet. See [CONTRIBUTING.md](CONTRIBUTING.md) to
