@@ -137,7 +137,19 @@ wheel**. The trap this exists to catch is quiet and common:
 > default; setuptools needs `include_package_data` + a `MANIFEST.in`, or an
 > explicit `[tool.setuptools.package-data]`.
 
-A copyable hatchling scaffold that gets this right ships inside aelix at
+Your pack must also **declare an `aelix.extensions` entry point** — that is how
+an installed distribution is discovered at all:
+
+```toml
+[project.entry-points."aelix.extensions"]
+my-ext = "my_ext:setup"
+```
+
+A distribution with no such entry point is rejected. (`aelix extension verify`
+exits 0 when it finds nothing to report, which is right for the tool and wrong
+for a listing, so the gate checks the entry-point group itself.)
+
+A copyable hatchling scaffold that gets both of these right ships inside aelix at
 `aelix_coding_agent/examples/starter/`.
 
 Check your own pack before you open a PR — this is the same verdict CI computes:

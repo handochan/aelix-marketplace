@@ -272,6 +272,34 @@ def verify_candidate(
             f"`pip install {candidate.source}` exited {code}:\n{out.strip()}",
         )
 
+    # `verify` exits 0 when it finds NO endpoints at all -- correct for its own
+    # contract (every REPORTED endpoint is BOUND, vacuously), and a hole for
+    # this gate, which would then admit a distribution that is not an aelix
+    # extension in the first place. Measured: aelix alone in a venv prints "No
+    # extensions installed" and exits 0. So count the group directly, through
+    # importlib.metadata rather than by reading verify's prose.
+    code, out = _run(
+        [
+            str(py), "-c",
+            "from importlib.metadata import entry_points;"
+            "print(len(entry_points(group='aelix.extensions')))",
+        ],
+        timeout=60,
+    )
+    if code != 0:
+        return Result(candidate, False, "ERROR (endpoint count)", out.strip())
+    if out.strip() == "0":
+        return Result(
+            candidate,
+            False,
+            "REJECTED (no endpoint)",
+            "the distribution installed but registers no `aelix.extensions` "
+            "entry point, so aelix would never discover it as an extension and "
+            "there is nothing for a listing to advertise. Declare one, e.g.\n"
+            '  [project.entry-points."aelix.extensions"]\n'
+            "  my-ext = \"my_ext:setup\"",
+        )
+
     aelix_bin = py.parent / "aelix"
     if not aelix_bin.exists():
         aelix_bin = py.parent / "aelix.exe"
