@@ -1,0 +1,105 @@
+name: verify-candidates
+
+# The BOUND gate for catalog submissions (aelix-ai #145, ADR-0207).
+#
+# validate-catalog.yml answers "is this document well-formed and will aelix parse
+# every entry". It never installs anything, so it cannot answer the question a
+# listing actually makes: if a user installs this entry, do they get the
+# contributions it advertises? A pack whose aelix-plugin.toml was dropped from
+# its wheel -- what a setuptools build with DEFAULT configuration does -- installs
+# fine, runs setup(), reports success, and contributes NOTHING. This workflow
+# installs each candidate into a throwaway virtualenv and runs
+# `aelix extension verify`, which reaches that verdict WITHOUT importing the pack.
+#
+# SECURITY -- read before changing the triggers.
+#
+#   `pip install <candidate>` EXECUTES contributor-controlled build code. That is
+#   why this runs on `pull_request` and must NEVER be moved to
+#   `pull_request_target`: that trigger would hand a fork's build code a writable
+#   GITHUB_TOKEN and this repository's secrets. `permissions` is read-only, no
+#   secret is referenced, and nothing here is cached -- a poisoned cache would
+#   outlive the job. `verify` itself imports no plugin code (aelix asserts this
+#   with an import-marker test), so only the install step is exposed.
+
+on:
+  pull_request:
+    paths:
+      - "catalog.json"
+      - "scripts/verify_candidates.py"
+      - ".github/workflows/verify-candidates.yml"
+  # A listing may name an UNPINNED source (`aelix-ext-foo`, an unpinned git URL),
+  # which CONTRIBUTING accepts. Such an entry can be BOUND the day it merges and
+  # rot the next time upstream publishes. A PR-only gate can never see that, so
+  # re-verify the whole catalog on a schedule.
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-candidates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # The base revision of catalog.json is needed to tell an added or
+          # moved entry from an untouched one.
+          fetch-depth: 0
+
+      # actions/setup-python v5.3.0
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: "3.11"
+
+      - name: Clone aelix
+        # aelix is not on PyPI during beta, and its packages are mutually pinned
+        # at one version, so the three are installed TOGETHER from source into
+        # each throwaway venv (same reasoning as validate-catalog.yml).
+        run: git clone --depth 1 https://github.com/handochan/aelix-ai.git /tmp/aelix-src
+
+      - name: Install aelix into the runner env
+        # Only so the parity test below can import aelix's own classify_target.
+        # This is OUR code, not a candidate's -- no submission is ever installed
+        # outside a throwaway venv.
+        run: |
+          python -m pip install -q \
+            /tmp/aelix-src/packages/aelix-ai \
+            /tmp/aelix-src/packages/aelix-agent-core \
+            /tmp/aelix-src/packages/aelix-coding-agent
+
+      - name: Unit-test the gate's own decisions
+        # The classifier decides which submissions are eligible at all, so it is
+        # covered rather than trusted -- including a comparison against aelix's
+        # own git classification, which it copies and could drift from.
+        working-directory: scripts
+        run: python test_verify_candidates.py
+
+      - name: Resolve the base catalog
+        if: github.event_name == 'pull_request'
+        # No --depth here: the checkout above is unshallow, and mixing a shallow
+        # fetch into it is how "object not found" appears on a large PR.
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git show FETCH_HEAD:catalog.json > /tmp/base-catalog.json
+
+      - name: Verify changed candidates
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/verify_candidates.py \
+            --base-catalog /tmp/base-catalog.json \
+            --aelix-src /tmp/aelix-src
+
+      - name: Verify every listed candidate (sweep)
+        if: github.event_name != 'pull_request'
+        run: |
+          python scripts/verify_candidates.py \
+            --all \
+            --aelix-src /tmp/aelix-src

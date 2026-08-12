@@ -14,12 +14,16 @@ delete it and describe your change.
 
 ### Entry format
 - [ ] The entry has a non-empty `name` and a non-empty `source`.
-- [ ] `source` is exactly one of the three supported forms:
-  - a local path (`./ext` or `/abs/path`), **or**
+- [ ] `source` is one of the two forms this catalog accepts:
   - a git URL, ideally pinned to a 40-hex commit SHA (`git+https://host/repo.git@<sha>`), **or**
   - a PyPI spec, ideally version-pinned (`pkg-name==1.2.3`).
+  - *(A local path is rejected here. It cannot be verified, and on a machine without that directory the entry silently resolves as a package name instead — see CONTRIBUTING, "Source forms".)*
 - [ ] Any `sha256` I included is lowercase 64-hex, and I understand it is **advisory / display-only** (never a trust signal).
 - [ ] `catalog.json` is still valid JSON and `python scripts/validate_catalog.py` passes locally.
+
+### The pack binds a manifest
+- [ ] `aelix extension verify` exits **0** for my pack in a clean virtualenv — see CONTRIBUTING, ["Your extension must bind a manifest"](../CONTRIBUTING.md#your-extension-must-bind-a-manifest).
+- [ ] I know that a **setuptools build with default configuration drops `aelix-plugin.toml` from the wheel**, and I have confirmed mine is inside it (`python -m zipfile -l dist/*.whl`).
 
 ### Curation / safety
 - [ ] The `homepage` URL is reachable and points at the real project.
