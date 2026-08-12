@@ -44,8 +44,12 @@ The catalog format is:
 }
 ```
 
-Each entry in `extensions` requires a `name` and a `source`; the `source` is a
-`path`, a `git+url[@40-hex-sha]`, or a `pypi-name[==version]` spec. See
+Each entry in `extensions` requires a `name` and a `source`. In **this** catalog
+the `source` is a `git+url[@40-hex-sha]` or a `pypi-name[==version]` spec; the
+`path` form Aelix also accepts is [not listable
+here](CONTRIBUTING.md#source-forms). A listed pack must additionally bind an
+`aelix-plugin.toml` — CI installs every added or changed entry and rejects it
+unless `aelix extension verify` reports `BOUND`. See
 [CONTRIBUTING.md](CONTRIBUTING.md#entry-fields) for the full field reference.
 
 > The **runtime authority** for the format is Aelix's

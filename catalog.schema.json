@@ -42,8 +42,12 @@
         "source": {
           "type": "string",
           "minLength": 1,
-          "description": "The ONLY field the installer consumes. One of three forms handed UNCHANGED to `aelix extension install`: (1) a local path, e.g. \"./extensions/my-ext\" or \"/opt/aelix/my-ext\"; (2) a git URL, optionally pinned to a 40-hex commit SHA, e.g. \"git+https://github.com/acme/aelix-ext.git\" or \"git+https://github.com/acme/aelix-ext.git@0123456789abcdef0123456789abcdef01234567\"; (3) a PyPI package spec, optionally version-pinned, e.g. \"aelix-ext-foo\" or \"aelix-ext-foo==1.2.3\". Must contain no control characters (an entry whose source has a control character is skipped at runtime).",
-          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"
+          "description": "The ONLY field the installer consumes, handed UNCHANGED to `aelix extension install`. THIS catalog admits two forms: (1) a git URL, optionally pinned to a 40-hex commit SHA, e.g. \"git+https://github.com/acme/aelix-ext.git\" or \"git+https://github.com/acme/aelix-ext.git@0123456789abcdef0123456789abcdef01234567\"; (2) a PyPI package spec, optionally version-pinned, e.g. \"aelix-ext-foo\" or \"aelix-ext-foo==1.2.3\". A LOCAL PATH is a third form aelix accepts generally but this catalog REJECTS -- see the $comment below. Must contain no control characters (an entry whose source has a control character is skipped at runtime).",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$",
+          "$comment": "The `not` below rejects the obvious local-path spellings; scripts/verify_candidates.py is the AUTHORITY and rejects the rest (e.g. \"extensions/my-ext\", which has no leading marker). Why a public catalog cannot list a path at all: aelix's classify_target returns \"path\" only when the string EXISTS on the machine reading it, so on any machine WITHOUT that directory -- which is every machine but the author's -- the same entry silently stops meaning \"this directory\" and starts meaning \"a package name\" nobody chose (aelix-ai #131). It is also unverifiable: the submission gate cannot install a path that is not on the runner. Private and intranet catalogs are unaffected; this rule is this document's, not aelix's.",
+          "not": {
+            "pattern": "^(\\.|/|~|file://|[A-Za-z]:[\\\\/])"
+          }
         },
         "description": {
           "type": "string",
