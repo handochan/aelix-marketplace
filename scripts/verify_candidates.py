@@ -387,11 +387,13 @@ def main(argv: list[str]) -> int:
     for result in results:
         print(f"{'PASS' if result.ok else 'FAIL'}  {result.candidate.name}: {result.verdict}")
     if rejected:
+        # Each rejection printed its OWN reason above; do not restate one of
+        # them here as if it covered all. A path source, for instance, is
+        # refused before anything is installed.
         print(
-            f"\nFAIL: {len(rejected)} of {len(results)} candidate(s) rejected. "
-            "A listing must yield a BOUND manifest (ADR-0207): otherwise the "
-            "pack installs, its setup() runs, and every declarative "
-            "contribution it advertises is silently ignored."
+            f"\nFAIL: {len(rejected)} of {len(results)} candidate(s) rejected "
+            "— see each candidate's reason above. A listing must be installable "
+            "and must yield a BOUND manifest (ADR-0207)."
         )
         return EXIT_REJECTED
     print(f"\nPASS: all {len(results)} candidate(s) BOUND")
