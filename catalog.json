@@ -2,5 +2,11 @@
   "schemaVersion": 1,
   "name": "Aelix official catalog",
   "updated": "2026-07-31T00:00:00Z",
-  "extensions": []
+  "extensions": [
+    {
+      "name": "gate-proof",
+      "source": "./extensions/not-a-real-thing",
+      "description": "THROWAWAY: proves the gate rejects. Close, never merge."
+    }
+  ]
 }
