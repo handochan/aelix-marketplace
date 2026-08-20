@@ -1,0 +1,47 @@
+name: check-theme
+
+# index.html is published to Pages verbatim -- no build step, nothing that reads
+# it. That is why the measured contrast ratios lived only in a comment above
+# :root, and a comment is not a check. Now that the page follows the reader's
+# colour scheme there are two palettes to keep honest, and the light one is the
+# half a maintainer on a dark laptop never sees.
+#
+# scripts/check_theme.py needs nothing outside the standard library, so unlike
+# validate-catalog this job installs nothing and runs in seconds. It proves each
+# detector individually against a doctored copy of the page -- matching that
+# detector's own message, not merely that something failed -- so a clean result
+# cannot mean "the pattern stopped matching". The audit is printed first and the
+# proof second, so a fault big enough to break a control's anchor still tells
+# you what is wrong with the page.
+
+on:
+  push:
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "scripts/check_theme.py"
+      - ".github/workflows/check-theme.yml"
+  pull_request:
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "scripts/check_theme.py"
+      - ".github/workflows/check-theme.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  theme:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # actions/setup-python v5.3.0
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: "3.11"
+
+      - name: Both colour schemes must be legible
+        run: python scripts/check_theme.py

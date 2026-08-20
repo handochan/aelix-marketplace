@@ -36,7 +36,7 @@ jobs:
           set -eu
           base="https://raw.githubusercontent.com/handochan/aelix-ai/main/docs/assets/brand"
           fail=0
-          for f in favicon.svg mark.svg lockup-dark.svg social-card.png; do
+          for f in favicon.svg mark.svg lockup-dark.svg lockup-light.svg social-card.png; do
             if ! curl -fsSL --retry 3 "$base/$f" -o "$RUNNER_TEMP/$f"; then
               echo "::error::could not fetch the canonical $f from $base"
               fail=1
