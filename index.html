@@ -245,6 +245,15 @@
     cursor: pointer;
   }
   .cmd .copy:hover { background: var(--chip-bg); }
+  /* The ring goes INWARD in here. .cmd is overflow: hidden so it can clip its
+     children to the rounded corners, and their boxes sit 1px from three of
+     those edges -- while the ring occupies +2px to +4px outside the border box.
+     Measured before this rule: 102 of the ring's pixels survived, all of them
+     in a 3px strip down the left, so a keyboard user tabbing onto the page's
+     only button saw a short line appear beside the border that was already
+     there. Applies to the scrollable <pre> too, which the UA also makes
+     focusable so it can be scrolled from the keyboard. */
+  .cmd :focus-visible { outline-offset: -3px; }
   .cmd .copy[data-copied="true"] { color: var(--accent); font-weight: 600; }
   .install .note { margin: 10px 0 0; font-size: 0.85rem; color: var(--fg-muted); }
 
