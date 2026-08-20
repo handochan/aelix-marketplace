@@ -6,7 +6,8 @@
 <title>Aelix Marketplace — extensions for Aelix</title>
 <meta name="description" content="The official catalog of extensions for Aelix — an agent runtime and extension platform in pure Python. Self-hosted, auditable, air-gap ready.">
 <link rel="canonical" href="https://handochan.github.io/aelix-marketplace/">
-<meta name="theme-color" content="#0B0F14">
+<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6FAFB" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://handochan.github.io/aelix-marketplace/">
 <meta property="og:title" content="Aelix Marketplace — extensions for Aelix">
@@ -17,14 +18,17 @@
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <style>
   /* ---- Theme tokens --------------------------------------------------
-     Dark-locked, matching https://handochan.github.io/aelix-ai/ token for
-     token, so moving between the two properties has no seam. Aelix brand
-     palette — glow #22D3EE, current #06B6D4, deep #0E7490, ink #0B1220,
-     ground #0B0F14, paper #F6FAFB. Measured contrast on the ground: body
-     12.86:1, headings 18.29:1, muted 6.25:1, accent 10.63:1; on the elevated
-     surface 12.16:1 and 5.91:1; ink-on-accent 10.36:1 — all clear AA. */
+     Follows the reader's colour scheme, matching
+     https://handochan.github.io/aelix-ai/ token for token and role for role,
+     so moving between the two properties has no seam. Aelix brand palette —
+     glow #22D3EE, current #06B6D4, deep #0E7490, ink #0B1220, ground
+     #0B0F14, paper #F6FAFB.
+
+     DARK (the default): body 12.86:1, headings 18.29:1, muted 6.25:1,
+     accent 10.63:1 on the ground; 12.16:1 and 5.91:1 on the elevated
+     surface; ink-on-accent 10.36:1 — all clear AA. */
   :root {
-    color-scheme: dark;
+    color-scheme: light dark;
     --bg: #0B0F14;
     --bg-elev: #10161E;
     --bg-code: #0d141c;
@@ -46,9 +50,48 @@
     --focus: #22D3EE;
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     /* Geometry shared with the homepage: 1060px measure, 24px gutter,
-       12px card radius. */
+       12px card radius. Never theme-dependent. */
     --radius: 12px;
     --maxw: 1060px;
+  }
+
+  /* LIGHT: the same roles re-pointed, each value solved to the ratio its
+     dark counterpart measures, so neither ground is the poor relation.
+     Body 12.88:1, headings 17.82:1, muted 6.23:1, accent 5.10:1 on the
+     ground; 13.53:1, 6.55:1 and 5.36:1 on the elevated surface;
+     paper-on-accent 5.10:1; chip 10.24:1, advisory 8.49:1 and error
+     8.72:1 each on their own fill. Every foreground token clears AA on
+     every surface token in BOTH themes — the weakest pair anywhere is
+     4.59:1, the accent on the light error tint (dark's weakest is
+     5.11:1). The amber and rose tints are a shade lighter than exact
+     dark-band parity would make them so that pair stays above 4.5.
+
+     The accent is the brand DEEP, not the glow. Glow measures 1.72:1 on
+     paper and 1.81:1 on white: the colour that carries the dark theme is
+     unreadable on a light ground. BRAND.md reaches the same conclusion
+     about the lockups, which is why a lockup-light.svg exists. */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F6FAFB;
+      --bg-elev: #FFFFFF;
+      --bg-code: #EFF5F7;
+      --fg: #22303A;
+      --fg-strong: #0B1220;
+      --fg-muted: #4F6068;
+      --border: #D1DEE4;
+      --border-strong: #BAC7D1;
+      --accent: #0E7490;
+      --accent-fg: #F6FAFB;
+      --chip-bg: #E9F0F3;
+      --chip-fg: #2B3A3F;
+      --advisory-bg: #FBEDCD;
+      --advisory-fg: #583F0E;
+      --advisory-border: #D1AD61;
+      --error-bg: #FDE9E9;
+      --error-fg: #7D1D1D;
+      --error-border: #EBB8B8;
+      --focus: #0E7490;
+    }
   }
 
   /* ---- Reset / base -------------------------------------------------- */
@@ -106,7 +149,12 @@
      952x272 viewBox's 272 vertical units — so the box has to be 32 * 272/192
      = 45px for the lockup itself to clear the floor. 158px keeps the 3.5:1. */
   .brand { display: flex; align-items: center; gap: 14px; min-width: 0; flex-wrap: wrap; }
-  .brand .home { display: block; flex: none; line-height: 0; }
+  .brand .home, .brand .home picture { display: block; flex: none; line-height: 0; }
+  /* The word and the cursor pixel are the only parts that differ between
+     lockup-dark.svg and lockup-light.svg; the mark is byte-identical in
+     both. assets/mark.svg in the footer is theme-neutral by construction
+     (BRAND.md), so it is served unswapped: sitting on the page ground, its
+     deep frame measures 5.10:1 light and 3.59:1 dark. */
   .brand .home:hover { text-decoration: none; opacity: 0.85; }
   .brand .lockup { width: 158px; height: 45px; display: block; }
   .brand .sep { color: var(--fg-muted); flex: none; user-select: none; }
@@ -383,8 +431,11 @@
     <div class="brand">
       <a class="home" href="https://handochan.github.io/aelix-ai/" rel="noopener"
          aria-label="Aelix home">
-        <img class="lockup" src="assets/lockup-dark.svg" alt="Aelix"
-             width="158" height="45">
+        <picture>
+          <source media="(prefers-color-scheme: light)" srcset="assets/lockup-light.svg">
+          <img class="lockup" src="assets/lockup-dark.svg" alt="Aelix"
+               width="158" height="45">
+        </picture>
       </a>
       <span class="sep" aria-hidden="true">/</span>
       <span class="name">Marketplace</span>
