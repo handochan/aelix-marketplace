@@ -8,8 +8,11 @@ name: check-theme
 #
 # scripts/check_theme.py needs nothing outside the standard library, so unlike
 # validate-catalog this job installs nothing and runs in seconds. It proves each
-# of its detectors against a doctored copy of the page before reporting, so a
-# clean result cannot mean "the pattern stopped matching".
+# detector individually against a doctored copy of the page -- matching that
+# detector's own message, not merely that something failed -- so a clean result
+# cannot mean "the pattern stopped matching". The audit is printed first and the
+# proof second, so a fault big enough to break a control's anchor still tells
+# you what is wrong with the page.
 
 on:
   push:
