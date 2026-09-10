@@ -251,10 +251,17 @@
      Measured before this rule: 102 of the ring's pixels survived, all of them
      in a 3px strip down the left, so a keyboard user tabbing onto the page's
      only button saw a short line appear beside the border that was already
-     there. Applies to the scrollable <pre> too, which the UA also makes
-     focusable so it can be scrolled from the keyboard. */
+     there. Applies to the scrollable <pre> too. That
+     carries `tabindex="0"` rather than relying on the UA: Chrome makes a
+     childless scroll container focusable on its own, Safari and Firefox do not,
+     and the Windows line is wider than its box at every width -- without the
+     attribute there is no way to scroll it into view from the keyboard on
+     those two. */
   .cmd :focus-visible { outline-offset: -3px; }
   .cmd .copy[data-copied="true"] { color: var(--accent); font-weight: 600; }
+  /* The first label sits under the traits list; every later one follows a
+     command box. */
+  .install .cmd + .label { margin-top: 18px; }
   .install .note { margin: 10px 0 0; font-size: 0.85rem; color: var(--fg-muted); }
 
   /* ---- Sections ------------------------------------------------------ */
@@ -480,15 +487,25 @@
       </ul>
 
       <div class="install">
-        <span class="label" id="install-label">Install Aelix</span>
-        <div class="cmd" role="group" aria-labelledby="install-label">
-          <pre><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/handochan/aelix-ai/main/install.sh | sh</code></pre>
-          <button class="copy" type="button" id="copy-btn"
-                  aria-label="Copy install command to clipboard">Copy</button>
+        <span class="label" id="install-label-posix">Install Aelix — macOS · Linux</span>
+        <div class="cmd" role="group" aria-labelledby="install-label-posix">
+          <pre tabindex="0"><code>curl -fsSL https://raw.githubusercontent.com/handochan/aelix-ai/main/install.sh | sh</code></pre>
+          <button class="copy" type="button"
+                  aria-label="Copy the macOS and Linux install command">Copy</button>
+        </div>
+        <span class="label" id="install-label-windows">Windows</span>
+        <div class="cmd" role="group" aria-labelledby="install-label-windows">
+          <pre tabindex="0"><code>powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/handochan/aelix-ai/main/install.ps1 | iex"</code></pre>
+          <button class="copy" type="button"
+                  aria-label="Copy the Windows install command">Copy</button>
         </div>
         <p class="note">
+          Windows is experimental and needs <code>v0.1.0-beta.2</code> or newer.
+        </p>
+        <p class="note">
           Review the script before piping it to a shell — that is the honest way
-          to run any <code>curl | sh</code> installer. Every <em>Aelix</em> wheel is
+          to run any <code>curl | sh</code> or <code>irm | iex</code> installer.
+          Every <em>Aelix</em> wheel is
           verified against the release's <code>SHA256SUMS</code> manifest and a
           mismatch aborts; third-party dependencies resolve from PyPI as usual.
           The Aelix source lives at
@@ -562,43 +579,78 @@
 (function () {
   "use strict";
 
-  // ---- Copy install command --------------------------------------------
-  var copyBtn = document.getElementById("copy-btn");
-  var cmdText = document.getElementById("install-cmd").textContent;
-  if (copyBtn) {
-    copyBtn.addEventListener("click", function () {
-      function done() {
-        copyBtn.textContent = "Copied";
-        copyBtn.setAttribute("data-copied", "true");
-        window.setTimeout(function () {
-          copyBtn.textContent = "Copy";
-          copyBtn.removeAttribute("data-copied");
-        }, 1800);
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cmdText).then(done, fallbackCopy);
-      } else {
-        fallbackCopy();
-      }
-      function fallbackCopy() {
-        try {
-          var ta = document.createElement("textarea");
-          ta.value = cmdText;
-          ta.setAttribute("readonly", "");
-          ta.style.position = "absolute";
-          ta.style.left = "-9999px";
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-          done();
-        } catch (e) {
-          copyBtn.textContent = "Copy failed";
-          window.setTimeout(function () { copyBtn.textContent = "Copy"; }, 1800);
-        }
-      }
-    });
+  // ---- Copy install commands -------------------------------------------
+  // One handler per button, each reading the <code> in its OWN .cmd box. The
+  // single-id version this replaces could serve one command only, and it read
+  // the text once at load; reading it per click, off the element the reader is
+  // looking at, is what keeps the clipboard and the page in step.
+  var HOLD = 1800;
+
+  function copyViaTextarea(text) {
+    var previous = document.activeElement;
+    var ok = false;
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "absolute";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();  // which also focuses it -- that is why the trick works
+      // The RETURN VALUE, not merely the absence of a throw: execCommand
+      // reports a refusal by returning false, and the version this replaces
+      // ran its success path regardless, so the button said "Copied" over an
+      // untouched clipboard.
+      ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e) {
+      ok = false;
+    }
+    // ...and focus would land on <body>, sending a keyboard reader back to the
+    // top of the tab order.
+    if (previous && previous.focus) { previous.focus({ preventScroll: true }); }
+    return ok;
   }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll(".install .cmd .copy"),
+    function (button) {
+      var box = button.closest(".cmd");
+      var code = box && box.querySelector("code");
+      if (!code) { return; }
+      var label = button.textContent;
+      var timer;
+
+      function settle(ok) {
+        button.textContent = ok ? "Copied" : "Copy failed";
+        // Cleared on failure as well as set on success: a copy that fails
+        // inside a previous one's window would otherwise keep the accent and
+        // paint the word "failed" in it.
+        if (ok) {
+          button.setAttribute("data-copied", "true");
+        } else {
+          button.removeAttribute("data-copied");
+        }
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          button.textContent = label;
+          button.removeAttribute("data-copied");
+        }, HOLD);
+      }
+
+      button.addEventListener("click", function () {
+        var text = code.textContent.trim();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            function () { settle(true); },
+            function () { settle(copyViaTextarea(text)); }
+          );
+        } else {
+          settle(copyViaTextarea(text));
+        }
+      });
+    }
+  );
 
   // ---- Catalog viewer --------------------------------------------------
   var region = document.getElementById("catalog-region");
