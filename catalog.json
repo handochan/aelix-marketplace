@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "Aelix official catalog",
-  "updated": "2026-10-07T16:09:13Z",
+  "updated": "2026-10-07T16:32:02.022390Z",
   "extensions": [
     {
       "name": "aelix-memory",
@@ -9,6 +9,13 @@
       "description": "Alpha: opt-in local project memory with user approval, provenance, temporal revisions and offline hybrid recall.",
       "version": "0.1.0a1",
       "homepage": "https://github.com/handochan/aelix-memory"
+    },
+    {
+      "name": "aelix-webtool",
+      "source": "git+https://github.com/handochan/aelix-webtool.git@880e4bf2ec21d7029de3e4af61015c43d8c1b921",
+      "description": "Keyless DuckDuckGo or configured Brave, Tavily, Exa or SearXNG search, and bounded public-page reading.",
+      "version": "0.1.0",
+      "homepage": "https://github.com/handochan/aelix-webtool"
     }
   ]
 }
