@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "Aelix official catalog",
-  "updated": "2026-10-07T17:27:50Z",
+  "updated": "2026-10-07T23:39:09.557996Z",
   "extensions": [
     {
       "name": "aelix-memory",
@@ -12,9 +12,9 @@
     },
     {
       "name": "aelix-webtool",
-      "source": "git+https://github.com/handochan/aelix-webtool.git@880e4bf2ec21d7029de3e4af61015c43d8c1b921",
-      "description": "Keyless DuckDuckGo or configured Brave, Tavily, Exa or SearXNG search, and bounded public-page reading.",
-      "version": "0.1.0",
+      "source": "git+https://github.com/handochan/aelix-webtool.git@5fcb5878cf67f97b459c1f40897d2534c2e1ca7d",
+      "description": "Keyless DuckDuckGo or configured web search, batch queries and public-page snapshots with cached read/find.",
+      "version": "0.2.0",
       "homepage": "https://github.com/handochan/aelix-webtool"
     }
   ]
