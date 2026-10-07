@@ -1,6 +1,14 @@
 {
   "schemaVersion": 1,
   "name": "Aelix official catalog",
-  "updated": "2026-07-31T00:00:00Z",
-  "extensions": []
+  "updated": "2026-10-07T16:09:13Z",
+  "extensions": [
+    {
+      "name": "aelix-memory",
+      "source": "git+https://github.com/handochan/aelix-memory.git@9559fb1e6121586a1d88bf9b1057fc128b6a3197",
+      "description": "Alpha: opt-in local project memory with user approval, provenance, temporal revisions and offline hybrid recall.",
+      "version": "0.1.0a1",
+      "homepage": "https://github.com/handochan/aelix-memory"
+    }
+  ]
 }
