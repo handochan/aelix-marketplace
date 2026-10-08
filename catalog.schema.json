@@ -70,6 +70,26 @@
           "type": "string",
           "pattern": "^[0-9a-f]{64}$",
           "description": "ADVISORY, DISPLAY-ONLY lowercase hex SHA-256. This is NEVER a trust signal: it is never written to the integrity pin store and must not be read as \"verified\". Real integrity comes from the install-time verify_and_pin gate and the optional Ed25519 signature."
+        },
+        "types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["extension", "theme"]
+          },
+          "$comment": "pi's package types are extension, skill, theme and prompt. Only the two aelix can ship from a catalog today are admitted: every entry is an extension (verify_candidates.py refuses a distribution with no `aelix.extensions` entry point), and an extension can contribute themes. `skill` joins when an extension can ship SKILL.md files (aelix-ai #253); `prompt` when aelix can install prompt templates at all. The homepage already knows all four.",
+          "description": "Optional, DISPLAY-ONLY. Which of pi's package types this entry provides, for the marketplace homepage's type badges and filter; aelix and its installer never read it. Absent means [\"extension\"]. Add \"theme\" when the entry's aelix-plugin.toml contributes themes."
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,31}$"
+          },
+          "description": "Optional, DISPLAY-ONLY. Up to eight lowercase keywords (letters, digits, hyphens) the marketplace homepage searches and offers as filters, e.g. [\"search\", \"duckduckgo\"]; aelix and its installer never read them."
         }
       }
     }

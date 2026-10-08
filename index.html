@@ -97,6 +97,10 @@
   /* ---- Reset / base -------------------------------------------------- */
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  /* `hidden` is only the UA's `display: none`, which any author `display`
+     beats -- and the catalog's toolbar, meta row, filters and pager are all
+     flex boxes, so without this they would show while hidden. */
+  [hidden] { display: none !important; }
   body {
     margin: 0;
     background: var(--bg);
@@ -277,21 +281,88 @@
 
   .divider { height: 1px; background: var(--border); border: 0; margin: 40px 0; }
 
-  /* ---- Catalog viewer ------------------------------------------------ */
+  /* ---- Catalog browser ----------------------------------------------- */
+  /* One entry per row, not a grid of cards: a row's job is its install
+     command, and a commit-pinned git source makes that command about 110
+     characters. A third-width card could only scroll it or cut it, and either
+     one hides the revision the reader is about to trust. */
+  .section-head p + p { margin-top: 8px; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0 0;
+  }
+  .toolbar .search { flex: 1 1 280px; min-width: 0; }
+  .toolbar .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--fg-muted);
+  }
+  .toolbar input,
+  .toolbar select {
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--fg);
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    min-height: 42px;
+    padding: 8px 12px;
+    max-width: 100%;
+  }
+  .toolbar input { width: 100%; }
+  .toolbar input::placeholder { color: var(--fg-muted); opacity: 1; }
+  /* The global ring rounds to 4px, which would square these controls' corners
+     every time they took focus. */
+  .toolbar input:focus-visible,
+  .toolbar select:focus-visible { border-radius: 8px; }
+
   .catalog-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px 16px;
-    margin: 16px 0 4px;
+    gap: 6px 14px;
+    margin: 16px 0 0;
     font-size: 0.9rem;
     color: var(--fg-muted);
     overflow-wrap: anywhere;
   }
-  .catalog-meta .count {
-    font-weight: 600;
-    color: var(--fg);
+  .catalog-meta .count { font-weight: 600; color: var(--fg); }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 10px 0 0;
+    font-size: 0.86rem;
   }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--chip-bg);
+    color: var(--fg);
+    padding: 3px 10px;
+    font: inherit;
+    cursor: pointer;
+  }
+  .link-button {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .link-button:hover { text-decoration: underline; }
 
   .state {
     border: 1px solid var(--border);
@@ -315,57 +386,53 @@
     word-break: break-word;
   }
 
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin: 18px 0;
-  }
-  .card {
+  .ext-list { display: grid; gap: 12px; margin: 14px 0 0; }
+  .ext,
+  .detail {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-elev);
-    padding: 18px 18px 16px;
-    display: flex;
-    flex-direction: column;
+    padding: 18px 20px;
+    display: grid;
     gap: 10px;
     min-width: 0;
   }
-  .card h3 {
-    margin: 0;
-    font-size: 1.08rem;
-    letter-spacing: -0.01em;
-    word-break: break-word;
-  }
-  .card .desc { margin: 0; color: var(--fg); font-size: 0.95rem; }
-  .card .catalog-tag { font-size: 0.78rem; color: var(--fg-muted); }
-
-  .field { margin: 0; }
-  .field dt {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--fg-muted);
-    margin-bottom: 3px;
-  }
-  .field dd { margin: 0; }
-  .source-box {
-    background: var(--bg-code);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 10px;
-    overflow-x: auto;       /* long source spec scrolls in its own box */
-    max-width: 100%;
-  }
-  .source-box code { white-space: nowrap; font-size: 0.84rem; }
-
-  .card-foot {
+  .ext-head {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 2px;
+    gap: 6px 10px;
   }
+  .ext-head h3 {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+  .ext .desc,
+  .detail .desc { margin: 0; color: var(--fg); font-size: 0.95rem; max-width: 78ch; }
+  /* An entry's command WRAPS where the hero's scrolls. Wrapped, the whole
+     source -- revision included -- is on screen with no scrollbar, and the box
+     needs no tabindex to be read from the keyboard. Copy takes the text, not
+     the line breaks the browser drew into it. */
+  .cmd.wraps pre { padding: 10px 14px; }
+  .cmd.wraps pre code { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.86rem; }
+  .cmd .arg { display: inline-block; max-width: 100%; }
+  .ext-foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--fg-muted);
+  }
+  .ext-foot .links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-left: auto; }
+  .origin { font-family: var(--mono); font-size: 0.82rem; overflow-wrap: anywhere; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .note { margin: 0; font-size: 0.88rem; color: var(--fg-muted); max-width: 74ch; }
+
   .chip {
     display: inline-flex;
     align-items: center;
@@ -377,6 +444,7 @@
     background: var(--chip-bg);
     color: var(--chip-fg);
     max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .chip.version { font-family: var(--mono); }
   .chip.advisory {
@@ -385,25 +453,82 @@
     border-color: var(--advisory-border);
     cursor: help;
   }
-  .chip.advisory .sha {
-    font-family: var(--mono);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .chip.homepage { text-decoration: none; }
-  .chip.homepage:hover { border-color: var(--accent); text-decoration: none; }
+  a.chip:hover { border-color: var(--accent); text-decoration: none; }
 
-  .advisory-foot {
-    margin: 20px 0 0;
+  .back { display: inline-block; margin: 20px 0 0; font-size: 0.92rem; }
+  .detail { margin: 12px 0 0; padding: 22px 24px; gap: 12px; }
+  .detail .ext-head h3 { font-size: 1.3rem; }
+  .detail h4 {
+    margin: 10px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 20px;
+    margin: 0;
+    font-size: 0.92rem;
+  }
+  .facts dt { color: var(--fg-muted); }
+  .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .facts code { font-size: 0.86rem; }
+  .facts .note { margin-top: 2px; font-size: 0.84rem; }
+  .notice {
+    margin: 14px 0 0;
     padding: 14px 16px;
     border: 1px dashed var(--advisory-border);
     border-radius: var(--radius);
     background: var(--advisory-bg);
     color: var(--advisory-fg);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
   }
-  .advisory-foot strong { font-weight: 700; }
+  .notice p { margin: 0; }
+  .notice strong { font-weight: 700; }
+
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 24px 0 0;
+    font-size: 0.9rem;
+  }
+  .pager a,
+  .pager .current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-elev);
+    color: var(--fg);
+  }
+  .pager a:hover { border-color: var(--accent); text-decoration: none; }
+  .pager .current {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+    font-weight: 600;
+  }
+  .pager .gap { color: var(--fg-muted); padding: 0 2px; }
+
+  @media (max-width: 560px) {
+    .ext,
+    .detail { padding: 16px; }
+    .toolbar .field { flex: 1 1 auto; }
+    .toolbar .field select { flex: 1 1 auto; min-width: 0; }
+    .ext-foot .links { margin-left: 0; }
+    .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .facts dd { margin-bottom: 10px; }
+  }
 
   /* ---- Footer -------------------------------------------------------- */
   footer.site {
@@ -517,41 +642,54 @@
 
   <div class="wrap"><hr class="divider"></div>
 
-  <!-- (2) Live catalog viewer ------------------------------------------ -->
+  <!-- (2) Catalog browser ---------------------------------------------- -->
   <section id="catalog">
     <div class="wrap">
       <div class="section-head">
         <h2>Catalog</h2>
         <p>
-          Extensions published in this catalog. This list is <strong>advisory</strong>:
-          being listed here does not mean an extension has been reviewed, verified,
-          or is safe to run.
+          Each entry carries the exact command that installs it — copy it into a
+          terminal where Aelix is installed, or open the entry for its details.
+          <a href="https://github.com/handochan/aelix-marketplace/blob/main/CONTRIBUTING.md"
+             rel="noopener">List your own&nbsp;→</a>
+        </p>
+        <p>
+          This list is <strong>advisory</strong>: being listed here does not mean
+          an extension has been reviewed, verified, or is safe to run. The install
+          still shows you the source and asks before it fetches anything.
         </p>
       </div>
 
+      <form class="toolbar" id="catalog-toolbar" role="search" hidden>
+        <label class="search">
+          <span class="visually-hidden">Search extensions</span>
+          <input type="search" id="catalog-q" name="q" autocomplete="off"
+                 spellcheck="false" placeholder="Search name, description, tag or source">
+        </label>
+      </form>
+
       <div class="catalog-meta" id="catalog-meta" hidden>
-        <span class="count" id="catalog-count"></span>
+        <span class="count" id="catalog-status" role="status" tabindex="-1"></span>
         <span id="catalog-name"></span>
         <span id="catalog-updated"></span>
       </div>
+      <div class="filters" id="catalog-filters" hidden></div>
 
-      <div id="catalog-region" aria-live="polite" aria-busy="true">
-        <div class="state" id="loading">
-          <h3>Loading catalog…</h3>
-          <p>Fetching <code>./catalog.json</code>.</p>
-        </div>
+      <div id="catalog-region" aria-busy="true">
+        <noscript>
+          <div class="state">
+            <h3>This catalog needs JavaScript</h3>
+            <p>The page renders <a href="./catalog.json">catalog.json</a> in your
+              browser. Read that file directly, or browse the catalog from a
+              terminal with <code>aelix extension discover --refresh</code>.</p>
+          </div>
+        </noscript>
       </div>
 
-      <p class="advisory-foot" id="advisory-note" hidden>
-        <strong>About the sha256 chip:</strong> the hash shown on a card is a
-        <strong>display-only advisory</strong> value copied from the catalog entry.
-        It is <strong>not</strong> a verified trust signal — Aelix does not treat a
-        catalog-supplied hash as proof of anything. Real integrity comes from the
-        install-time consent prompt, the on-disk integrity pin, and the extension's
-        own Ed25519 signature, all checked on your machine.
-      </p>
+      <nav class="pager" id="catalog-pager" aria-label="Catalog pages" hidden></nav>
     </div>
   </section>
+  <p class="visually-hidden" id="copy-status" role="status"></p>
 </main>
 
 <footer class="site">
@@ -579,12 +717,15 @@
 (function () {
   "use strict";
 
-  // ---- Copy install commands -------------------------------------------
-  // One handler per button, each reading the <code> in its OWN .cmd box. The
-  // single-id version this replaces could serve one command only, and it read
-  // the text once at load; reading it per click, off the element the reader is
-  // looking at, is what keeps the clipboard and the page in step.
+  // ---- Copy commands ---------------------------------------------------
+  // ONE delegated listener serves every Copy button on the page: the two in
+  // the hero, and the one each catalog entry renders after the fetch, which a
+  // binding made at load could never reach. Each click reads the <code> in the
+  // button's OWN .cmd box at that moment, so what lands on the clipboard is
+  // exactly the text the reader is looking at.
   var HOLD = 1800;
+  var copyTimers = new WeakMap();
+  var copyStatus = document.getElementById("copy-status");
 
   function copyViaTextarea(text) {
     var previous = document.activeElement;
@@ -612,167 +753,1130 @@
     return ok;
   }
 
-  Array.prototype.forEach.call(
-    document.querySelectorAll(".install .cmd .copy"),
-    function (button) {
-      var box = button.closest(".cmd");
-      var code = box && box.querySelector("code");
-      if (!code) { return; }
-      var label = button.textContent;
-      var timer;
-
-      function settle(ok) {
-        button.textContent = ok ? "Copied" : "Copy failed";
-        // Cleared on failure as well as set on success: a copy that fails
-        // inside a previous one's window would otherwise keep the accent and
-        // paint the word "failed" in it.
-        if (ok) {
-          button.setAttribute("data-copied", "true");
-        } else {
-          button.removeAttribute("data-copied");
-        }
-        window.clearTimeout(timer);
-        timer = window.setTimeout(function () {
-          button.textContent = label;
-          button.removeAttribute("data-copied");
-        }, HOLD);
-      }
-
-      button.addEventListener("click", function () {
-        var text = code.textContent.trim();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(
-            function () { settle(true); },
-            function () { settle(copyViaTextarea(text)); }
-          );
-        } else {
-          settle(copyViaTextarea(text));
-        }
-      });
+  function settle(button, ok) {
+    // The resting label is read once, before the first flash replaces it; read
+    // again on a second click inside the window, it would be "Copied".
+    if (!button.hasAttribute("data-label")) {
+      button.setAttribute("data-label", button.textContent);
     }
-  );
+    button.textContent = ok ? "Copied" : "Copy failed";
+    // Cleared on failure as well as set on success: a copy that fails inside
+    // a previous one's window would otherwise keep the accent and paint the
+    // word "failed" in it.
+    if (ok) {
+      button.setAttribute("data-copied", "true");
+    } else {
+      button.removeAttribute("data-copied");
+    }
+    // The button keeps its aria-label, which names what it copies, so a screen
+    // reader never hears the word change; the outcome is spoken here instead.
+    copyStatus.textContent = ok ? "Copied to the clipboard." : "Copy failed.";
+    window.clearTimeout(copyTimers.get(button));
+    copyTimers.set(button, window.setTimeout(function () {
+      button.textContent = button.getAttribute("data-label");
+      button.removeAttribute("data-copied");
+      copyStatus.textContent = "";
+    }, HOLD));
+  }
 
-  // ---- Catalog viewer --------------------------------------------------
-  var region = document.getElementById("catalog-region");
-  var metaEl = document.getElementById("catalog-meta");
-  var countEl = document.getElementById("catalog-count");
-  var nameEl = document.getElementById("catalog-name");
-  var updatedEl = document.getElementById("catalog-updated");
-  var advisoryNote = document.getElementById("advisory-note");
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest && event.target.closest(".cmd .copy");
+    var code = button && button.closest(".cmd").querySelector("code");
+    if (!code) { return; }
+    var text = code.textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { settle(button, true); },
+        function () { settle(button, copyViaTextarea(text)); }
+      );
+    } else {
+      settle(button, copyViaTextarea(text));
+    }
+  });
+
+  // ---- Reading an entry ------------------------------------------------
+  // The catalog is untrusted input. Every string reaches the page through
+  // textContent, never innerHTML; every outbound link is http(s) or built
+  // here from parts that were checked first; and an entry is read the way
+  // aelix's own parser reads it, so this page and `aelix extension discover`
+  // list the same extensions under the same names.
+  var REPOSITORY = "https://github.com/handochan/aelix-marketplace";
+  var CONTROL = /[\u0000-\u001f\u007f-\u009f]/;
+  var CONTROLS = /[\u0000-\u001f\u007f-\u009f]/g;
+
+  // aelix's _clean_display: control characters become spaces, and a string
+  // that is nothing else is dropped rather than rendered blank.
+  function cleanDisplay(value) {
+    if (typeof value !== "string") { return null; }
+    var v = value.replace(CONTROLS, " ").trim();
+    return v || null;
+  }
+
+  // Format and default-ignorable characters (bidi overrides, zero-width
+  // joiners, BOMs, tag characters, Hangul fillers, variation selectors)
+  // change what a string LOOKS like without changing what it is: an impostor
+  // named "\uFEFFaelix-memory" is a different entry to aelix, and renders as
+  // the real one. In a name or a source they are shown as visible escapes --
+  // and BEFORE any trim(), which in JS (unlike Python's strip) eats a BOM.
+  function reveal(text) {
+    return text.replace(/[\p{Cf}\p{Default_Ignorable_Code_Point}]/gu, function (ch) {
+      return "<U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0") + ">";
+    });
+  }
+
+  // Python's `str.strip()` is truthy -- what aelix asks of a name or a source.
+  // JS counts a BOM as whitespace and Python does not, so it is kept here.
+  function hasText(value) {
+    return typeof value === "string" && /[^\s]|\uFEFF/.test(value);
+  }
+
+  // encodeURIComponent throws on a lone surrogate, which JSON can carry; one
+  // such entry must cost its own link, not the whole catalog.
+  function encode(text) {
+    try {
+      return encodeURIComponent(text);
+    } catch (e) {
+      return null;
+    }
+  }
 
   // Only http(s) links are rendered as anchors; anything else stays inert
   // text (defence-in-depth against a javascript:/data: href in an entry).
   function safeHttpUrl(value) {
-    if (typeof value !== "string") return null;
+    if (typeof value !== "string") { return null; }
     var v = value.trim();
-    if (/^https?:\/\//i.test(v)) return v;
+    return /^https?:\/\//i.test(v) ? v : null;
+  }
+
+  // The shape catalog.schema.json gives each of `types` and `tags`.
+  function slug(value) {
+    var v = typeof value === "string" ? value.trim().toLowerCase() : "";
+    return /^[a-z0-9][a-z0-9-]{0,31}$/.test(v) ? v : null;
+  }
+
+  // A list of them, deduplicated, with anything that is not one dropped.
+  function slugs(value) {
+    var out = [];
+    (Array.isArray(value) ? value : []).forEach(function (v) {
+      var s = slug(v);
+      if (s && out.indexOf(s) === -1) { out.push(s); }
+    });
+    return out;
+  }
+
+  // ---- The install command ---------------------------------------------
+  // A source or a name is catalog data, and this page turns it into a shell
+  // command for a reader to paste. So a command is offered only in a form
+  // that no shell they are likely to paste into -- sh, bash, zsh, fish,
+  // PowerShell, cmd -- can read as anything but that one argument, and
+  // otherwise not at all: quoting that is safe in some shells hands the
+  // others a command injection.
+  //
+  // Bare, these characters are literal in all six, and a source in the forms
+  // this catalog asks for (a git URL pinned to a commit, a pinned PyPI name)
+  // is made of them, so the usual command carries no quotes.
+  var SHELL_BARE = /^[A-Za-z0-9][A-Za-z0-9._+=:\/@-]*$/;
+  // Anything else is single-quoted, which sh, bash, zsh, fish and PowerShell
+  // all read as one literal argument -- but only if it is printable ASCII
+  // (PowerShell also ends a single-quoted string at a curly quote), and has
+  // no ' or \ (fish reads \' and \\ as escapes even inside single quotes), no
+  // space or " (Windows PowerShell 5.1 re-quotes an argument with a space in
+  // it for the program it runs without escaping a " inside, and the program
+  // then splits it -- into a `--yes` that skips the consent prompt, if the
+  // catalog wrote one), and none of & | < > ^ % (cmd, which has no single
+  // quotes, would run or redirect on them; with the quotes left literal the
+  // command just fails there).
+  var SHELL_QUOTABLE = /^[\x20-\x7e]+$/;
+  var SHELL_UNQUOTABLE = /['"\\ &|<>^%]/;
+  function shellWord(text) {
+    if (SHELL_BARE.test(text)) { return text; }
+    if (SHELL_QUOTABLE.test(text) && !SHELL_UNQUOTABLE.test(text)) { return "'" + text + "'"; }
     return null;
   }
 
-  function nonEmptyString(value) {
-    return (typeof value === "string" && value.trim()) ? value.trim() : null;
+  // ---- Where a source comes from ---------------------------------------
+  // Read off the string's SHAPE, the way scripts/verify_candidates.py
+  // classifies it (its git arm mirrors aelix's classify_target). This decides
+  // how an entry is labelled and linked, never whether it installs -- CI and
+  // the installer decide that. The links it builds point at the exact
+  // revision the command fetches, which is the code a reader should review.
+  var PYPI_SPEC = /^([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)(\[[A-Za-z0-9,._-]+\])?\s*((?:==|!=|<=|>=|<|>|~=|===)\s*[^\s,]+(?:\s*,\s*(?:==|!=|<=|>=|<|>|~=|===)\s*[^\s,]+)*)?$/;
+  // A git source is pinned only by a full 40-hex commit ending the URL, before
+  // any #fragment: aelix's _GIT_SHA_RE, minus its one miss -- it also matches
+  // a hash at the end of the fragment (`…git@main#subdirectory=a@<40 hex>`),
+  // where pip still installs `main`. A branch, a tag, a 64-hex id, a query
+  // string after the commit: each installs as a ref that can move.
+  var GIT_PIN = /@([0-9a-fA-F]{40})$/;
+  // Forges whose web view of a repository can be built from its clone URL:
+  // how many path segments name a repository there (0 = two or more), and
+  // where a revision lives under it.
+  var FORGES = {
+    "github.com": { segments: 2, tree: "/tree/" },
+    "gitlab.com": { segments: 0, tree: "/-/tree/" },
+    "codeberg.org": { segments: 2, tree: "/src/commit/", commitsOnly: true }
+  };
+
+  // A link is built by joining strings, so every part of it has to name a
+  // place rather than a way out of one: a `..` in a ref or in #subdirectory=
+  // would walk the browser to another repository under a label that still
+  // names this one.
+  function segment(part) {
+    return part !== "" && !/^\.+$/.test(part);
   }
 
-  // Mirror the CLI's display_version(): explicit `version`, else versions[0].
-  function displayVersion(ext) {
-    var v = nonEmptyString(ext.version);
-    if (v) return v;
-    if (Array.isArray(ext.versions)) {
-      for (var i = 0; i < ext.versions.length; i++) {
-        var cand = nonEmptyString(ext.versions[i]);
-        if (cand) return cand;
+  function encodePath(path) {
+    var parts = path.split("/");
+    if (!parts.every(segment)) { return null; }
+    var encoded = parts.map(encode);
+    return encoded.indexOf(null) === -1 ? encoded.join("/") : null;
+  }
+
+  function isGitShaped(source) {
+    var low = source.toLowerCase();
+    if (source.indexOf("git+") === 0 || /^(?:git:\/\/|ssh:\/\/|git@)/.test(low) ||
+        /\.git$/.test(low)) {
+      return true;
+    }
+    if (!/^https?:\/\//.test(low)) { return false; }
+    // An http(s) URL whose PATH -- never its host -- ends in .git, with or
+    // without a trailing @<rev>.
+    var path;
+    try {
+      path = new URL(low).pathname.replace(/\/+$/, "");
+    } catch (e) {
+      return false;
+    }
+    var at = path.lastIndexOf("@");
+    return /\.git$/.test(path) ||
+      (at !== -1 && /\.git$/.test(path.slice(0, at).replace(/\/+$/, "")));
+  }
+
+  function parseSource(source) {
+    if (isGitShaped(source)) { return parseGit(source); }
+    var m = PYPI_SPEC.exec(source);
+    if (!m) { return { kind: "other" }; }
+    var spec = (m[3] || "").replace(/\s+/g, "");
+    // One exact `==` and nothing else. A wildcard (`==1.*`) or a range names a
+    // set of releases, and a bare name is whatever is newest at install time.
+    var exact = /^===?([^,*]+)$/.exec(spec);
+    // m[1] matched PYPI_SPEC's name: ASCII letters, digits, . _ - only.
+    var project = "https://pypi.org/project/" + m[1] + "/";
+    var version = exact && segment(exact[1]) ? encode(exact[1]) : null;
+    return {
+      kind: "pypi",
+      label: "pypi.org/project/" + m[1],
+      rev: exact ? exact[1] : "",
+      spec: spec,
+      pinned: !!exact,
+      home: project,
+      url: version ? project + version + "/" : project
+    };
+  }
+
+  function parseGit(source) {
+    var pin = GIT_PIN.exec(source.split("#")[0]);
+    var url = source.replace(/^git\+/, "");
+    var hash = url.indexOf("#");
+    var fragment = hash === -1 ? "" : url.slice(hash + 1);
+    if (hash !== -1) { url = url.slice(0, hash); }
+    var host;
+    var path;
+    var m = /^[a-z][a-z0-9+.-]*:\/\/([^\/?]*)([^?]*)/i.exec(url);
+    if (m) {
+      host = m[1].replace(/^.*@/, "").replace(/:\d*$/, "");
+      path = m[2];
+    } else if ((m = /^[^@\/:]+@([^:\/]+):(.*)$/.exec(url))) {  // git@host:owner/repo
+      host = m[1];
+      path = m[2];
+    } else {
+      return { kind: "git", label: url, rev: "", spec: "", pinned: !!pin, home: null, url: null };
+    }
+    // pip's rule: the revision is whatever follows the LAST @ in the path.
+    var at = path.lastIndexOf("@");
+    var rev = at === -1 ? "" : path.slice(at + 1);
+    if (at !== -1) { path = path.slice(0, at); }
+    host = host.toLowerCase();
+    var repo = path.replace(/^\/+|\/+$/g, "").replace(/\.git$/i, "");
+    var sub = /(?:^|&)subdirectory=([^&]*)/.exec(fragment);
+    var out = {
+      kind: "git",
+      label: host + "/" + repo,
+      rev: pin ? pin[1] : rev,
+      spec: "",
+      pinned: !!pin,
+      subdirectory: sub ? sub[1] : "",
+      home: null,
+      url: null
+    };
+    var forge = Object.prototype.hasOwnProperty.call(FORGES, host) ? FORGES[host] : null;
+    var parts = repo.split("/");
+    var named = forge && (forge.segments ? parts.length === forge.segments : parts.length >= 2);
+    if (named && parts.every(function (p) { return /^[A-Za-z0-9._-]+$/.test(p) && segment(p); })) {
+      out.home = out.url = "https://" + host + "/" + parts.join("/");
+      if (out.rev && (out.pinned || !forge.commitsOnly)) {
+        var revPath = encodePath(out.rev);
+        var subPath = out.subdirectory ? encodePath(out.subdirectory) : "";
+        // A ref or subdirectory that is not plain segments gets no link at
+        // all, rather than one whose label and destination disagree.
+        out.url = revPath !== null && subPath !== null
+          ? out.url + forge.tree + revPath + (subPath ? "/" + subPath : "") : null;
       }
+    }
+    return out;
+  }
+
+  // What an unpinned source installs, said plainly.
+  function drift(origin) {
+    if (origin.kind === "pypi") {
+      return origin.spec
+        ? "Installs the newest release matching " + origin.spec + " at the time you install."
+        : "Installs the newest release at the time you install.";
+    }
+    return origin.rev
+      ? "Installs whatever “" + origin.rev + "” points at when you install; a branch or tag can move."
+      : "Installs whatever the default branch holds when you install.";
+  }
+
+  function normalize(raw, index) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) { return null; }
+    var source = hasText(raw.source) ? raw.source : null;
+    var name = hasText(raw.name) ? cleanDisplay(reveal(raw.name)) : null;
+    // aelix skips an entry with no name or no source, and one whose source
+    // holds a control character: the source is handed to the installer, so it
+    // is never "cleaned" into something else. So does this page.
+    if (!source || !name || CONTROL.test(source)) { return null; }
+    source = reveal(source).trim();
+    var versions = [];
+    if (Array.isArray(raw.versions)) {
+      raw.versions.forEach(function (v) {
+        var clean = cleanDisplay(v);
+        if (clean) { versions.push(clean); }
+      });
+    }
+    var tags = slugs(raw.tags);
+    // pi's package types. Every entry this catalog lists is an extension --
+    // CI refuses one with no `aelix.extensions` entry point -- so that is the
+    // type of an entry that names none.
+    var types = slugs(raw.types);
+    if (!types.length) { types.push("extension"); }
+    var entry = {
+      index: index,
+      name: name,
+      key: name.toLowerCase(),  // aelix resolves a name case-insensitively
+      source: source,
+      origin: parseSource(source),
+      description: cleanDisplay(raw.description),
+      // aelix's display_version(): the explicit `version`, else versions[0].
+      version: cleanDisplay(raw.version) || versions[0] || null,
+      versions: versions,
+      homepage: safeHttpUrl(cleanDisplay(raw.homepage)),
+      sha256: cleanDisplay(raw.sha256),
+      types: types,
+      tags: tags
+    };
+    // The argument `aelix extension install` gets, or why there is none. Only
+    // the two forms this catalog lists get one: a path-shaped source would
+    // install whatever sits at that path on the READER'S machine -- the
+    // reason CI refuses to list one (aelix-ai #131).
+    if (entry.origin.kind === "other") {
+      entry.install = null;
+      entry.noInstall = "its source is neither a git URL nor a PyPI name, the two forms this catalog lists";
+    } else {
+      entry.install = shellWord(source);
+      entry.noInstall = entry.install ? null
+        : "its source holds characters that shells disagree about, so no single command is safe to paste";
+    }
+    entry.text = [name, entry.description || "", types.join(" "), tags.join(" "), source]
+      .join("\n").toLowerCase();
+    return entry;
+  }
+
+  // ---- Fields, filters and orders --------------------------------------
+  // The catalog will keep gaining fields; these two tables are where this
+  // page learns about them. A FACET is a field a reader can filter by: its
+  // values (slugs, as the schema defines them), the URL parameter that
+  // carries a choice, and where its chips sit on a row -- in the `head` beside
+  // the name or the `foot` beside the source. With `select` it also gets a
+  // toolbar dropdown once two or more values exist. A SORT is an order a
+  // reader can pick, the first being the default. A new field is read in
+  // normalize(); one entry here exposes it, and the toolbar, the URL, the
+  // chips, the entry page and the empty states all follow.
+  var FACETS = [
+    {
+      // pi's package types -- extension, skill, theme, prompt. aelix can ship
+      // the first and the third today, so until a catalog lists both, every
+      // row says `extension` and there is no dropdown to choose with.
+      param: "type",
+      title: "Type",
+      heading: "Type",
+      every: "All types",
+      select: true,
+      chips: "head",
+      values: function (e) { return e.types; },
+      label: function (value) { return value; }
+    },
+    {
+      param: "tag",
+      title: "Tag",
+      heading: "Tags",
+      chips: "foot",
+      values: function (e) { return e.tags; },
+      label: function (value) { return "#" + value; }
+    }
+  ];
+
+  var collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+  var SORTS = [
+    {
+      param: "name",
+      label: "Name (A–Z)",
+      compare: function (a, b) { return collator.compare(a.name, b.name) || a.index - b.index; }
+    },
+    {
+      param: "catalog",
+      label: "Catalog order",  // the order `aelix extension discover` prints
+      compare: function (a, b) { return a.index - b.index; }
+    }
+  ];
+
+  function sortFor(param) {
+    for (var i = 0; i < SORTS.length; i++) {
+      if (SORTS[i].param === param) { return SORTS[i]; }
     }
     return null;
   }
+
+  // ---- The address is the state ----------------------------------------
+  // Every view has a URL: ?q= &type= &tag= &sort= &page= for the list, and
+  // ?ext=<name> for one entry. A filtered list can be shared, Back and Forward
+  // walk through what the reader did, and an extension's README can link to
+  // its own listing.
+  var PAGE_SIZE = 25;
+
+  function readState() {
+    var params = new URLSearchParams(window.location.search);
+    var s = {
+      q: (params.get("q") || "").trim(),
+      sort: sortFor(params.get("sort")) ? params.get("sort") : SORTS[0].param,
+      page: Math.max(1, parseInt(params.get("page"), 10) || 1),
+      ext: (params.get("ext") || "").trim(),
+      facets: {}
+    };
+    FACETS.forEach(function (f) { s.facets[f.param] = slug(params.get(f.param)) || ""; });
+    return s;
+  }
+
+  function urlFor(s) {
+    var params = new URLSearchParams();
+    if (s.ext) {
+      params.set("ext", s.ext);
+    } else {
+      if (s.q) { params.set("q", s.q); }
+      FACETS.forEach(function (f) {
+        if (s.facets[f.param]) { params.set(f.param, s.facets[f.param]); }
+      });
+      if (s.sort !== SORTS[0].param) { params.set("sort", s.sort); }
+      if (s.page > 1) { params.set("page", String(s.page)); }
+    }
+    var query = params.toString();
+    return query ? "?" + query : window.location.pathname;
+  }
+
+  // The list state as it is now, back on page 1, with `change` applied.
+  function derive(change) {
+    var s = { q: state.q, sort: state.sort, page: 1, ext: "", facets: {} };
+    FACETS.forEach(function (f) { s.facets[f.param] = state.facets[f.param]; });
+    change(s);
+    return s;
+  }
+
+  function isFiltered() {
+    return !!state.q || FACETS.some(function (f) { return !!state.facets[f.param]; });
+  }
+
+  function matches(entry, terms) {
+    for (var i = 0; i < FACETS.length; i++) {
+      var wanted = state.facets[FACETS[i].param];
+      if (wanted && FACETS[i].values(entry).indexOf(wanted) === -1) { return false; }
+    }
+    for (var j = 0; j < terms.length; j++) {
+      if (entry.text.indexOf(terms[j]) === -1) { return false; }
+    }
+    return true;
+  }
+
+  // ---- Page furniture --------------------------------------------------
+  var section = document.getElementById("catalog");
+  var toolbar = document.getElementById("catalog-toolbar");
+  var search = document.getElementById("catalog-q");
+  var metaEl = document.getElementById("catalog-meta");
+  var statusEl = document.getElementById("catalog-status");
+  var nameEl = document.getElementById("catalog-name");
+  var updatedEl = document.getElementById("catalog-updated");
+  var filtersEl = document.getElementById("catalog-filters");
+  var region = document.getElementById("catalog-region");
+  var pager = document.getElementById("catalog-pager");
+  var pageTitle = document.title;
+
+  var entries = [];  // every listed entry, normalized, in catalog order
+  var state = null;  // what the URL asks for -- see readState()
+  var selects = {};  // facet param -> its toolbar <select>, where it got one
+  var sortSelect = null;
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
-    if (className) node.className = className;
+    if (className) { node.className = className; }
     // textContent everywhere — catalog strings are untrusted, never innerHTML.
-    if (text != null) node.textContent = text;
+    if (text != null) { node.textContent = text; }
     return node;
   }
 
-  function field(label, valueNode) {
-    var dl = el("dl", "field");
-    dl.appendChild(el("dt", null, label));
-    var dd = el("dd");
-    dd.appendChild(valueNode);
-    dl.appendChild(dd);
-    return dl;
+  function clear(node) {
+    while (node.firstChild) { node.removeChild(node.firstChild); }
   }
 
-  function renderCard(ext) {
-    var card = el("article", "card");
+  // `context` names what the link is about for a screen reader, where a list
+  // of identical "Report" links would otherwise be indistinguishable.
+  function external(href, text, className, context) {
+    var a = el("a", className, text);
+    a.setAttribute("href", href);
+    a.setAttribute("rel", "noopener noreferrer");
+    a.setAttribute("target", "_blank");
+    a.appendChild(el("span", "visually-hidden", (context || "") + " (opens in a new tab)"));
+    return a;
+  }
 
-    var name = nonEmptyString(ext.name);
-    var source = nonEmptyString(ext.source);
-    // The CLI skips any entry missing name-or-source; do the same here.
-    if (!name || !source) return null;
+  // A link to another view of this page; the click handler below turns it
+  // into a history entry instead of a reload, and a middle-click still opens
+  // it in a new tab.
+  function internal(href, text, kind, className) {
+    var a = el("a", className, text);
+    a.setAttribute("href", href);
+    a.setAttribute("data-nav", kind);
+    return a;
+  }
 
-    card.appendChild(el("h3", null, name));
+  function facetChip(facet, value) {
+    var href = urlFor(derive(function (s) { s.facets[facet.param] = value; }));
+    var a = internal(href, facet.label(value), "list", "chip");
+    a.setAttribute("aria-label", "Show every extension with " +
+      facet.title.toLowerCase() + " " + facet.label(value));
+    return a;
+  }
 
-    var catName = nonEmptyString(ext.catalog_name) || nonEmptyString(ext.catalogName);
-    if (catName) card.appendChild(el("p", "catalog-tag", "from " + catName));
+  // Every chip the FACETS table puts at `place` ("head" or "foot") for an entry.
+  function facetChips(entry, place) {
+    var chips = [];
+    FACETS.forEach(function (facet) {
+      if (facet.chips !== place) { return; }
+      facet.values(entry).forEach(function (v) { chips.push(facetChip(facet, v)); });
+    });
+    return chips;
+  }
 
-    var desc = nonEmptyString(ext.description);
-    if (desc) card.appendChild(el("p", "desc", desc));
+  // The explanation rides along as hidden text as well as a tooltip: a title
+  // alone never reaches a keyboard, a touch screen or a screen reader.
+  function unpinnedChip(origin) {
+    var chip = el("span", "chip advisory", "unpinned");
+    chip.setAttribute("title", drift(origin));
+    chip.appendChild(el("span", "visually-hidden", ": " + drift(origin)));
+    return chip;
+  }
 
-    // Source (the only field the installer actually consumes).
-    var srcBox = el("div", "source-box");
-    srcBox.appendChild(el("code", "mono", source));
-    var srcField = field("Source", srcBox);
-    srcField.querySelector("dd").style.minWidth = "0";
-    card.appendChild(srcField);
+  // `arg` -- a source can run past 90 characters -- is set apart from the
+  // words before it, so that when the line does not fit, the whole argument
+  // moves to a line of its own rather than splitting at the first hyphen,
+  // where `aelix-` / `memory.git` reads like a hyphenated word.
+  function commandBox(command, arg, what) {
+    var box = el("div", "cmd wraps");
+    box.setAttribute("role", "group");
+    box.setAttribute("aria-label", what.charAt(0).toUpperCase() + what.slice(1));
+    var pre = el("pre");
+    var code = el("code", null, command);
+    code.appendChild(el("span", "arg", arg));
+    pre.appendChild(code);
+    box.appendChild(pre);
+    var button = el("button", "copy", "Copy");
+    button.setAttribute("type", "button");
+    button.setAttribute("aria-label", "Copy " + what);
+    box.appendChild(button);
+    return box;
+  }
 
-    // Footer chips: version, homepage, advisory sha256.
-    var foot = el("div", "card-foot");
+  function reportUrl(entry) {
+    var params = new URLSearchParams();
+    params.set("template", "listing-report.yml");
+    params.set("title", "Listing report: " + entry.name);
+    params.set("extension", entry.name);
+    params.set("source", entry.source);
+    return REPOSITORY + "/issues/new?" + params.toString();
+  }
 
-    var ver = displayVersion(ext);
-    if (ver) {
-      var vChip = el("span", "chip version");
-      vChip.appendChild(el("span", null, "v" + ver));
-      foot.appendChild(vChip);
+  // Same place, give or take a scheme, a trailing slash or a .git suffix.
+  function samePlace(a, b) {
+    function key(u) {
+      return u.toLowerCase().replace(/^https?:\/\//, "").replace(/(?:\.git)?\/*$/, "");
+    }
+    return !!a && !!b && key(a) === key(b);
+  }
+
+  // ---- A row in the list -----------------------------------------------
+  function renderRow(entry) {
+    var row = el("article", "ext");
+    var head = el("div", "ext-head");
+    var h3 = el("h3");
+    h3.appendChild(internal(urlFor({ ext: entry.name }), entry.name, "detail"));
+    head.appendChild(h3);
+    if (entry.version) { head.appendChild(el("span", "chip version", "v" + entry.version)); }
+    facetChips(entry, "head").forEach(function (chip) { head.appendChild(chip); });
+    row.appendChild(head);
+
+    if (entry.description) { row.appendChild(el("p", "desc", entry.description)); }
+
+    if (entry.install) {
+      row.appendChild(commandBox("aelix extension install ", entry.install,
+        "the install command for " + entry.name));
+    } else {
+      row.appendChild(el("p", "note", "No install command: " + entry.noInstall + "."));
     }
 
-    var home = safeHttpUrl(ext.homepage);
-    if (home) {
-      var a = el("a", "chip homepage");
-      a.setAttribute("href", home);
-      a.setAttribute("rel", "noopener noreferrer");
-      a.setAttribute("target", "_blank");
-      a.textContent = "Homepage ↗";
-      foot.appendChild(a);
+    var foot = el("div", "ext-foot");
+    var origin = entry.origin;
+    if (origin.kind !== "other") {
+      // Only a commit is shortened; a release number is shown whole.
+      var rev = origin.kind === "git" && origin.pinned ? origin.rev.slice(0, 7) : origin.rev;
+      var shown = origin.label + (rev ? " @ " + rev : "");
+      var where = origin.url ? external(origin.url, shown, "origin") : el("span", "origin", shown);
+      where.setAttribute("title", origin.url && origin.url !== origin.home
+        ? "The exact code this command installs" : "Where this source comes from");
+      foot.appendChild(where);
+      if (!origin.pinned) { foot.appendChild(unpinnedChip(origin)); }
+    }
+    var tags = facetChips(entry, "foot");
+    if (tags.length) {
+      var holder = el("span", "tags");
+      tags.forEach(function (chip) { holder.appendChild(chip); });
+      foot.appendChild(holder);
+    }
+    var links = el("span", "links");
+    // A homepage that is just the repository the line above already links
+    // would be the same link twice.
+    if (entry.homepage && !samePlace(entry.homepage, origin.home)) {
+      links.appendChild(external(entry.homepage, "Homepage", null, " of " + entry.name));
+    }
+    links.appendChild(external(reportUrl(entry), "Report", null, " " + entry.name));
+    foot.appendChild(links);
+    row.appendChild(foot);
+    return row;
+  }
+
+  // ---- The list --------------------------------------------------------
+  function noun(n) { return n === 1 ? " extension" : " extensions"; }
+
+  function renderList() {
+    document.title = pageTitle;
+    toolbar.hidden = entries.length < 2;  // nothing to search or order among one
+    metaEl.hidden = false;
+
+    var terms = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+    var found = entries.filter(function (e) { return matches(e, terms); });
+    found.sort(sortFor(state.sort).compare);
+    var pages = Math.max(1, Math.ceil(found.length / PAGE_SIZE));
+    var page = Math.min(state.page, pages);
+    var first = (page - 1) * PAGE_SIZE;
+    var shown = found.slice(first, first + PAGE_SIZE);
+
+    var range = pages > 1 ? (first + 1) + "–" + (first + shown.length) + " of " : "";
+    if (!isFiltered()) {
+      statusEl.textContent = range + entries.length + noun(entries.length);
+    } else if (pages > 1) {
+      statusEl.textContent = range + found.length + " matches · " +
+        entries.length + noun(entries.length);
+    } else {
+      statusEl.textContent = found.length + " of " + entries.length + noun(entries.length);
     }
 
-    var sha = nonEmptyString(ext.sha256);
-    if (sha) {
-      var shaChip = el("span", "chip advisory");
-      shaChip.setAttribute(
-        "title",
-        "Advisory display-only value from the catalog entry — NOT a verified " +
-        "trust signal.\nsha256: " + sha
-      );
-      var lbl = el("span", null, "sha256 ");
-      var shaText = el("span", "sha", sha.length > 14 ? sha.slice(0, 12) + "…" : sha);
-      shaChip.appendChild(lbl);
-      shaChip.appendChild(shaText);
-      foot.appendChild(shaChip);
+    renderFilters();
+    clear(region);
+    if (!found.length) {
+      region.appendChild(noMatch());
+      pager.hidden = true;
+      return;
+    }
+    var list = el("div", "ext-list");
+    shown.forEach(function (e) { list.appendChild(renderRow(e)); });
+    region.appendChild(list);
+    renderPager(page, pages);
+  }
+
+  function renderFilters() {
+    clear(filtersEl);
+    FACETS.forEach(function (facet) {
+      var value = state.facets[facet.param];
+      // A facet with a dropdown already shows its choice there.
+      if (!value || selects[facet.param]) { return; }
+      var pill = el("button", "pill", facet.title + ": " + facet.label(value));
+      pill.setAttribute("type", "button");
+      pill.setAttribute("aria-label",
+        "Remove the filter " + facet.title + ": " + facet.label(value));
+      var x = el("span", null, "×");
+      x.setAttribute("aria-hidden", "true");
+      pill.appendChild(x);
+      pill.addEventListener("click", function () {
+        state.facets[facet.param] = "";
+        state.page = 1;
+        commit(true);
+        statusEl.focus({ preventScroll: true });
+      });
+      filtersEl.appendChild(pill);
+    });
+    if (isFiltered()) {
+      var reset = el("button", "link-button", "Clear search and filters");
+      reset.setAttribute("type", "button");
+      reset.addEventListener("click", clearAll);
+      filtersEl.appendChild(reset);
+    }
+    filtersEl.hidden = !filtersEl.firstChild;
+  }
+
+  function noMatch() {
+    var box = el("div", "state");
+    box.appendChild(el("h3", null, "No extensions match"));
+    var wanted = [];
+    if (state.q) { wanted.push("“" + state.q + "”"); }
+    FACETS.forEach(function (f) {
+      if (state.facets[f.param]) { wanted.push(f.title + ": " + f.label(state.facets[f.param])); }
+    });
+    box.appendChild(el("p", null,
+      "Nothing in this catalog matches " + wanted.join(", ") + "."));
+    var links = el("p", "state-links");
+    var reset = el("button", "link-button", "Clear search and filters");
+    reset.setAttribute("type", "button");
+    reset.addEventListener("click", clearAll);
+    links.appendChild(reset);
+    box.appendChild(links);
+    return box;
+  }
+
+  function clearAll() {
+    state.q = "";
+    FACETS.forEach(function (f) { state.facets[f.param] = ""; });
+    state.page = 1;
+    search.value = "";
+    commit(true);
+    // A one-entry catalog has no toolbar, but its URL can still carry a search.
+    if (toolbar.hidden) {
+      statusEl.focus({ preventScroll: true });
+    } else {
+      search.focus();
+    }
+  }
+
+  // 1 … 4 5 6 … 12: the ends, and the page either side of this one. A gap of
+  // a single page shows that page rather than an ellipsis standing in for it.
+  function renderPager(page, pages) {
+    clear(pager);
+    if (pages < 2) {
+      pager.hidden = true;
+      return;
+    }
+    function link(n, text, label) {
+      var a = internal(urlFor(derive(function (s) { s.page = n; })), text, "list");
+      if (label) { a.setAttribute("aria-label", label); }
+      return a;
+    }
+    if (page > 1) { pager.appendChild(link(page - 1, "← Previous", "Previous page")); }
+    var last = 0;
+    for (var n = 1; n <= pages; n++) {
+      if (n !== 1 && n !== pages && Math.abs(n - page) > 1) { continue; }
+      if (n - last === 2) {
+        pager.appendChild(link(n - 1, String(n - 1), "Page " + (n - 1)));
+      } else if (n - last > 2) {
+        var gap = el("span", "gap", "…");
+        gap.setAttribute("aria-hidden", "true");
+        pager.appendChild(gap);
+      }
+      if (n === page) {
+        var current = el("span", "current", String(n));
+        current.setAttribute("aria-current", "page");
+        pager.appendChild(current);
+      } else {
+        pager.appendChild(link(n, String(n), "Page " + n));
+      }
+      last = n;
+    }
+    if (page < pages) { pager.appendChild(link(page + 1, "Next →", "Next page")); }
+    pager.hidden = false;
+  }
+
+  // ---- One entry -------------------------------------------------------
+  function fact(list, term, value) {
+    list.appendChild(el("dt", null, term));
+    var dd = el("dd");
+    (Array.isArray(value) ? value : [value]).forEach(function (v) { dd.appendChild(v); });
+    list.appendChild(dd);
+  }
+
+  // A paragraph of text and inline <code>: parts alternate, prose first.
+  function prose(className, parts) {
+    var p = el("p", className);
+    parts.forEach(function (part, i) {
+      p.appendChild(i % 2 ? el("code", null, part) : document.createTextNode(part));
+    });
+    return p;
+  }
+
+  function renderDetail() {
+    toolbar.hidden = true;
+    metaEl.hidden = true;
+    filtersEl.hidden = true;
+    pager.hidden = true;
+    clear(region);
+    var backLink = internal(backTarget().back, "← All extensions", "back", "back");
+    backLink.setAttribute("aria-label", "All extensions");
+    region.appendChild(backLink);
+
+    var key = state.ext.toLowerCase();
+    var found = entries.filter(function (e) { return e.key === key; });
+    if (!found.length) {
+      document.title = pageTitle;
+      var box = el("div", "state");
+      var h3 = el("h3", null, "No extension by that name");
+      h3.setAttribute("tabindex", "-1");
+      box.appendChild(h3);
+      box.appendChild(el("p", null, "Nothing in this catalog is named “" +
+        reveal(state.ext).slice(0, 120) + "”. It may have been renamed or removed."));
+      region.appendChild(box);
+      return;
+    }
+    document.title = found[0].name + " — Aelix Marketplace";
+    // Normally one. CI does not yet refuse two entries whose names differ
+    // only in case, and aelix would refuse to resolve either, so both show.
+    found.forEach(function (e) { region.appendChild(renderEntry(e)); });
+
+    // What aelix's installer actually checks, and no more (verify_and_pin in
+    // aelix's extension_install.py): pinning covers a git source pinned to a
+    // commit, and a PyPI release only on request.
+    var notice = el("div", "notice");
+    var p = prose(null, [
+      "An extension is Python code that runs inside Aelix with your permissions, " +
+      "and a listing here is not a review of that code — read it at the revision " +
+      "the command names. Aelix shows you the source it resolved and asks before " +
+      "it fetches anything. When that source is a git URL pinned to a commit, Aelix " +
+      "also records the commit, and refuses a later install of the same repository " +
+      "at a different one unless you pass ", "--repin",
+      ". A PyPI release is checked only when you pass ", "--verify-pypi", " or ",
+      "--strict", "."
+    ]);
+    p.insertBefore(el("strong", null, "Before you install. "), p.firstChild);
+    notice.appendChild(p);
+    region.appendChild(notice);
+  }
+
+  function renderEntry(entry) {
+    var card = el("article", "detail");
+    var head = el("div", "ext-head");
+    var h3 = el("h3", null, entry.name);
+    h3.setAttribute("tabindex", "-1");
+    head.appendChild(h3);
+    if (entry.version) { head.appendChild(el("span", "chip version", "v" + entry.version)); }
+    facetChips(entry, "head").forEach(function (chip) { head.appendChild(chip); });
+    var origin = entry.origin;
+    if (origin.kind !== "other" && !origin.pinned) { head.appendChild(unpinnedChip(origin)); }
+    card.appendChild(head);
+    if (entry.description) { card.appendChild(el("p", "desc", entry.description)); }
+
+    card.appendChild(el("h4", null, "Install"));
+    if (!entry.install) {
+      card.appendChild(el("p", "note", "This page offers no command for this entry: " +
+        entry.noInstall + ". Its source is under Details, exactly as listed."));
+    } else {
+      card.appendChild(commandBox("aelix extension install ", entry.install,
+        "the install command for " + entry.name));
+      card.appendChild(el("p", "note",
+        "Aelix shows you the resolved source and asks before it fetches anything. " +
+        "Once it is installed, restart Aelix — or run /reload in the TUI — to load it."));
+      // The name is catalog data too, so it gets the same shell rule as the
+      // source; a name no shell-safe form can carry gets no command.
+      var byName = shellWord(entry.name);
+      if (byName) {
+        card.appendChild(el("h4", null, "Or by name, through the catalog"));
+        card.appendChild(commandBox(
+          "aelix extension discover --refresh\naelix extension discover install ",
+          byName, "the two catalog commands for " + entry.name));
+        card.appendChild(el("p", "note",
+          "Aelix reads this catalog by default. The first command fetches it; the " +
+          "second looks the name up and installs the same source, through the same prompt."));
+      }
     }
 
-    if (foot.childNodes.length) card.appendChild(foot);
+    card.appendChild(el("h4", null, "Details"));
+    var facts = el("dl", "facts");
+    fact(facts, "Source", el("code", null, entry.source));
+    if (origin.kind === "git") {
+      fact(facts, "Repository",
+        origin.home ? external(origin.home, origin.label) : el("span", null, origin.label));
+      if (origin.pinned) {
+        fact(facts, "Revision", [
+          origin.url ? external(origin.url, origin.rev, "origin") : el("code", null, origin.rev),
+          el("p", "note", "A commit: every install gets exactly this code.")
+        ]);
+      } else {
+        fact(facts, "Revision", origin.rev
+          ? [el("code", null, origin.rev), el("p", "note", drift(origin))]
+          : el("p", "note", drift(origin)));
+      }
+      if (origin.subdirectory) { fact(facts, "Subdirectory", el("code", null, origin.subdirectory)); }
+    } else if (origin.kind === "pypi") {
+      fact(facts, "Package", external(origin.home, origin.label));
+      fact(facts, "Release", origin.pinned
+        ? [el("code", null, origin.rev), el("p", "note", "Pinned: every install gets this release.")]
+        : el("p", "note", drift(origin)));
+    }
+    if (entry.version) {
+      fact(facts, "Listed version", [
+        el("span", null, entry.version),
+        el("p", "note", "As the entry states it; what installs is whatever the source resolves to.")
+      ]);
+    }
+    if (entry.versions.length > 1) { fact(facts, "Versions", el("span", null, entry.versions.join(", "))); }
+    FACETS.forEach(function (facet) {
+      var values = facet.values(entry);
+      if (!values.length) { return; }
+      var chips = el("span", "tags");
+      values.forEach(function (v) { chips.appendChild(facetChip(facet, v)); });
+      fact(facts, facet.heading, chips);
+    });
+    if (entry.homepage) { fact(facts, "Homepage", external(entry.homepage, entry.homepage)); }
+    if (entry.sha256) {
+      fact(facts, "sha256", [
+        el("code", null, entry.sha256),
+        el("p", "note", "Copied from the catalog entry for display only. Aelix never " +
+          "checks it, so it proves nothing about what you install.")
+      ]);
+    }
+    card.appendChild(facts);
+
+    var foot = el("p", "ext-foot");
+    foot.appendChild(external(reportUrl(entry), "Report a problem with this listing"));
+    card.appendChild(foot);
     return card;
   }
 
-  function clearRegion() {
-    while (region.firstChild) region.removeChild(region.firstChild);
+  // ---- Moving between views --------------------------------------------
+  var shown = null;      // the location.search the page last rendered
+  var remembered = null; // { ext, memo }: where the open entry page goes back to
+
+  function render() {
+    shown = window.location.search;
+    if (state.ext) {
+      renderDetail();
+    } else {
+      renderList();
+    }
   }
 
-  // The empty state is what every visitor sees today, so it has to be a
+  // Where "← All extensions" leads, and how far down that list was. An entry
+  // page opened from the list carries both in its history state. A jump to
+  // #catalog from the header or the skip link makes a new history entry with
+  // no state, so the open page's is remembered here as well.
+  function backTarget() {
+    var memo = history.state;
+    if (!(memo && typeof memo.back === "string") && remembered && remembered.ext === state.ext) {
+      memo = remembered.memo;
+    }
+    return memo && typeof memo.back === "string"
+      ? memo : { back: window.location.pathname, y: null };
+  }
+
+  function syncControls() {
+    if (document.activeElement !== search) { search.value = state.q; }
+    FACETS.forEach(function (facet) {
+      var select = selects[facet.param];
+      if (!select) { return; }
+      var value = state.facets[facet.param];
+      // A value the URL asks for that no entry carries is still offered, so
+      // the empty result it produces explains itself -- until it is left.
+      Array.prototype.slice.call(select.querySelectorAll("option[data-absent]"))
+        .forEach(function (o) { if (o.value !== value) { select.removeChild(o); } });
+      if (value && !Array.prototype.some.call(select.options, function (o) { return o.value === value; })) {
+        var absent = option(value, facet.label(value) + " (0)");
+        absent.setAttribute("data-absent", "");
+        select.appendChild(absent);
+      }
+      select.value = value;
+    });
+    if (sortSelect) { sortSelect.value = state.sort; }
+  }
+
+  // Typing replaces the current history entry; anything a reader would expect
+  // Back to undo -- a filter, a page, an entry -- pushes a new one.
+  function commit(push) {
+    var url = urlFor(state);
+    if (push) {
+      history.pushState(null, "", url);
+    } else {
+      history.replaceState(history.state, "", url);
+    }
+    syncControls();
+    render();
+  }
+
+  // After a list changes under a click, put the reader at the top of the new
+  // results, and on the line that says how many there are.
+  function focusResults() {
+    if (metaEl.getBoundingClientRect().top < 0) {
+      (toolbar.hidden ? metaEl : toolbar).scrollIntoView();
+    }
+    statusEl.focus({ preventScroll: true });
+  }
+
+  // Back on the list from an entry's page: on that entry's own link, if it is
+  // on this page of results. `scroll` brings it into view too, for when no
+  // stored position put the page back where the reader left it -- an entry
+  // page opened from a README link or in a new tab has none.
+  function focusRow(name, scroll) {
+    var link = Array.prototype.filter.call(region.querySelectorAll(".ext h3 a"),
+      function (a) { return a.textContent === name; })[0];
+    (link || statusEl).focus({ preventScroll: !scroll });
+  }
+
+  function focusEntry() {
+    var heading = region.querySelector(".detail h3, .state h3");
+    if (heading) { heading.focus({ preventScroll: true }); }
+  }
+
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest && event.target.closest("a[data-nav]");
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey ||
+        event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    var kind = link.getAttribute("data-nav");
+    if (kind === "back") {
+      // A new history entry rather than Back, which would only undo the
+      // latest #catalog jump; the list's scroll position travels in state.
+      var target = backTarget();
+      var left = state.ext;
+      history.pushState(null, "", target.back);
+      state = readState();
+      syncControls();
+      render();
+      var restored = typeof target.y === "number";
+      if (restored) { window.scrollTo(0, target.y); }
+      focusRow(left, !restored);
+      return;
+    }
+    var memo = kind === "detail"
+      ? { back: window.location.pathname + window.location.search, y: window.scrollY } : null;
+    history.pushState(memo, "", link.getAttribute("href"));
+    state = readState();
+    remembered = memo ? { ext: state.ext, memo: memo } : null;
+    syncControls();
+    render();
+    if (kind === "detail") {
+      section.scrollIntoView();
+      focusEntry();
+    } else {
+      focusResults();
+    }
+  });
+
+  window.addEventListener("popstate", function () {
+    if (!entries.length) { return; }
+    var before = state;
+    state = readState();
+    if (state.ext && history.state && typeof history.state.back === "string") {
+      remembered = { ext: state.ext, memo: history.state };
+    }
+    // A jump to #catalog changes only the fragment: same view, nothing to draw.
+    if (window.location.search === shown) { return; }
+    syncControls();
+    render();
+    // Browser Back/Forward between the list and an entry: the browser puts
+    // the scroll position back, and focus goes where the reader left off.
+    if (before.ext && !state.ext) {
+      focusRow(before.ext, false);
+    } else if (state.ext && !before.ext) {
+      focusEntry();
+    } else if (!document.activeElement || document.activeElement === document.body) {
+      statusEl.focus({ preventScroll: true });
+    }
+  });
+
+  function option(value, text) {
+    var o = el("option", null, text);
+    o.value = value;
+    return o;
+  }
+
+  function field(text, control, visible) {
+    var label = el("label", "field");
+    label.appendChild(el("span", visible ? null : "visually-hidden", text));
+    label.appendChild(control);
+    return label;
+  }
+
+  function buildToolbar() {
+    FACETS.forEach(function (facet) {
+      if (!facet.select) { return; }
+      var counts = new Map();
+      entries.forEach(function (e) {
+        facet.values(e).forEach(function (v) { counts.set(v, (counts.get(v) || 0) + 1); });
+      });
+      if (counts.size < 2) { return; }  // a filter with one choice filters nothing
+      var select = el("select");
+      select.name = facet.param;
+      select.appendChild(option("", facet.every));
+      Array.from(counts.keys())
+        .sort(function (a, b) { return collator.compare(facet.label(a), facet.label(b)); })
+        .forEach(function (v) {
+          select.appendChild(option(v, facet.label(v) + " (" + counts.get(v) + ")"));
+        });
+      select.addEventListener("change", function () {
+        state.facets[facet.param] = select.value;
+        state.page = 1;
+        commit(true);
+      });
+      toolbar.appendChild(field("Filter by " + facet.title.toLowerCase(), select, false));
+      selects[facet.param] = select;
+    });
+
+    sortSelect = el("select");
+    sortSelect.name = "sort";
+    SORTS.forEach(function (s) { sortSelect.appendChild(option(s.param, s.label)); });
+    sortSelect.addEventListener("change", function () {
+      state.sort = sortSelect.value;
+      state.page = 1;
+      commit(true);
+    });
+    toolbar.appendChild(field("Sort", sortSelect, true));
+
+    var typing = 0;
+    function applySearch() {
+      window.clearTimeout(typing);
+      var q = search.value.trim();
+      if (q === state.q) { return; }
+      state.q = q;
+      state.page = 1;
+      commit(false);
+    }
+    search.addEventListener("input", function () {
+      window.clearTimeout(typing);
+      typing = window.setTimeout(applySearch, 150);
+    });
+    toolbar.addEventListener("submit", function (event) {
+      event.preventDefault();
+      applySearch();
+    });
+  }
+
+  // ---- Loading ---------------------------------------------------------
+  // The empty state was what every visitor saw first, so it has to be a
   // junction rather than a dead end: one route to authoring, one back to Aelix.
   function showEmptyState() {
-    clearRegion();
+    clear(region);
     var box = el("div", "state");
     box.appendChild(el("h3", null, "No extensions listed yet"));
     box.appendChild(el("p", null,
@@ -797,51 +1901,61 @@
   }
 
   function showErrorState(reason) {
-    clearRegion();
+    clear(region);
     var box = el("div", "state error");
     box.appendChild(el("h3", null, "Could not load the catalog"));
     box.appendChild(el("p", null,
       "The catalog at ./catalog.json could not be fetched or parsed. If you are " +
       "viewing this page from a local file, serve it over HTTP so the browser " +
       "can fetch catalog.json."));
-    if (reason) box.appendChild(el("p", "reason", String(reason)));
+    if (reason) { box.appendChild(el("p", "reason", String(reason))); }
     region.appendChild(box);
   }
 
-  function renderCatalog(doc) {
-    var extensions = (doc && Array.isArray(doc.extensions)) ? doc.extensions : [];
-    var cards = [];
-    for (var i = 0; i < extensions.length; i++) {
-      var ext = extensions[i];
-      if (ext && typeof ext === "object") {
-        var card = renderCard(ext);
-        if (card) cards.push(card);
+  function boot(doc) {
+    var raw = doc.extensions;
+    for (var i = 0; i < raw.length; i++) {
+      // normalize() is written not to throw; if a string it never anticipated
+      // proves it wrong, that costs this one entry, not the whole catalog.
+      try {
+        var entry = normalize(raw[i], i);
+        if (entry) { entries.push(entry); }
+      } catch (err) {
+        if (window.console) { window.console.warn("catalog entry " + i + " skipped:", err); }
       }
     }
 
-    // Catalog-level metadata (name / updated / count).
-    var docName = nonEmptyString(doc && doc.name);
-    var docUpdated = nonEmptyString(doc && doc.updated);
-    countEl.textContent = cards.length === 1
-      ? "1 extension" : (cards.length + " extensions");
-    nameEl.textContent = docName ? ("· " + docName) : "";
+    var docName = cleanDisplay(doc.name);
+    var docUpdated = cleanDisplay(doc.updated);
+    nameEl.textContent = docName ? "· " + docName : "";
     // Show the calendar day, not a raw ISO instant; anything that is not an
     // ISO date falls through unchanged (catalog strings are untrusted).
-    var day = (docUpdated && /^\d{4}-\d{2}-\d{2}/.test(docUpdated))
+    var day = docUpdated && /^\d{4}-\d{2}-\d{2}/.test(docUpdated)
       ? docUpdated.slice(0, 10) : docUpdated;
-    updatedEl.textContent = day ? ("· updated " + day) : "";
-    metaEl.hidden = false;
+    updatedEl.textContent = day ? "· updated " + day : "";
 
-    clearRegion();
-    if (!cards.length) {
+    if (!entries.length) {
+      metaEl.hidden = false;
+      statusEl.textContent = "0 extensions";
       showEmptyState();
       return;
     }
-    var grid = el("div", "cards");
-    for (var j = 0; j < cards.length; j++) grid.appendChild(cards[j]);
-    region.appendChild(grid);
-    advisoryNote.hidden = false;
+    buildToolbar();
+    state = readState();
+    syncControls();
+    render();
+    // A link into the catalog -- a search, a page, one entry -- lands on it,
+    // not on the hero above it.
+    if (window.location.search && !window.location.hash) { section.scrollIntoView(); }
   }
+
+  var loading = el("div", "state");
+  loading.appendChild(el("h3", null, "Loading catalog…"));
+  var fetching = el("p", null, "Fetching ");
+  fetching.appendChild(el("code", null, "./catalog.json"));
+  fetching.appendChild(document.createTextNode("."));
+  loading.appendChild(fetching);
+  region.appendChild(loading);
 
   function finish() { region.setAttribute("aria-busy", "false"); }
 
@@ -856,7 +1970,11 @@
       if (!doc || typeof doc !== "object" || Array.isArray(doc)) {
         throw new Error("catalog root is not a JSON object");
       }
-      renderCatalog(doc);
+      // aelix refuses such a document outright; an empty catalog has `[]`.
+      if (!Array.isArray(doc.extensions)) {
+        throw new Error("catalog has no 'extensions' array");
+      }
+      boot(doc);
     })
     .catch(function (err) {
       showErrorState(err && err.message ? err.message : err);

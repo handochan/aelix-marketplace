@@ -34,6 +34,8 @@ else is optional. The authoritative parser
 | `version`     | no       | Display version (informational only). |
 | `homepage`    | no       | Project/repository URL (https recommended). |
 | `sha256`      | no       | **Advisory, display-only** lowercase 64-hex digest. **Not a trust signal** — see below. |
+| `types`       | no       | Which [package types](#types-and-tags) the entry provides; absent means `["extension"]`. |
+| `tags`        | no       | Up to eight lowercase keywords the homepage searches and filters by. |
 
 ### Source forms
 
@@ -82,6 +84,53 @@ it into one of three forms. **This catalog admits two of them.**
 > store and *never* means "verified". Do not treat it as a checksum gate — it is
 > shown to users purely as informational metadata. Real integrity comes from the
 > install-time gate described below.
+
+### Types and tags
+
+`types` and `tags` are for people browsing the
+[homepage](https://handochan.github.io/aelix-marketplace/), which shows each
+entry's types as badges, offers them as a filter, and searches tags. Aelix and
+its installer never read either, so neither can change what gets installed —
+but CI checks their shape.
+
+`types` borrows [pi's package types](https://pi.dev/packages) — extension,
+skill, theme, prompt — and admits the two that Aelix can ship from a catalog
+today:
+
+| `types` value | When |
+| ------------- | ---- |
+| `extension`   | Always. Every entry here is one: CI rejects a distribution with no `aelix.extensions` entry point. Leaving `types` out means `["extension"]`. |
+| `theme`       | Your `aelix-plugin.toml` contributes themes (`[contributes] themes`). |
+
+`skill` joins the list when an extension can ship `SKILL.md` files (aelix-ai
+[#253](https://github.com/handochan/aelix-ai/issues/253)), and `prompt` when Aelix
+can install prompt templates at all. Until then the schema refuses both.
+
+`tags` are what someone would type to find your extension (`search`,
+`duckduckgo`), not a repeat of its name: up to eight, each lowercase letters,
+digits and hyphens.
+
+```json
+{
+  "name": "aelix-ext-example",
+  "source": "git+https://github.com/acme/aelix-ext-example.git@0123456789abcdef0123456789abcdef01234567",
+  "types": ["extension", "theme"],
+  "tags": ["nord", "dark"]
+}
+```
+
+### Your listing on the homepage
+
+The [homepage](https://handochan.github.io/aelix-marketplace/) shows every entry
+with the command that installs it — `aelix extension install <source>` — and
+gives each entry a page of its own at
+`https://handochan.github.io/aelix-marketplace/?ext=<name>`, which you can link
+to from your README.
+
+The pinned forms shown above always get a command. A source with characters that
+shells disagree about — a version range such as `>=1,<2`, for one — gets none, because no quoting
+reads the same in sh, zsh, fish, PowerShell and cmd, and a command that is safe
+in only some of them is not one the page will hand out.
 
 ## Security model
 

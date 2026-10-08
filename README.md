@@ -29,6 +29,7 @@ add one.
 | File | Purpose |
 | ---- | ------- |
 | [`catalog.json`](catalog.json) | The catalog document itself. |
+| [`index.html`](index.html) | The homepage: the catalog, with an install command for every entry — see [Web viewer](#web-viewer). |
 | [`catalog.schema.json`](catalog.schema.json) | JSON Schema (draft 2020-12) for the document — a contributor aid. |
 | [`scripts/validate_catalog.py`](scripts/validate_catalog.py) | Validator run in CI; parses with the real Aelix parser. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to add an entry; field reference; security model. |
@@ -162,7 +163,25 @@ Contributors never sign; the owner re-signs after merging a change. See
 
 Any web page in this repo that displays the catalog fetches `./catalog.json`
 **relatively**, so it works identically on the Pages URL and on a local clone
-without hardcoding a host.
+without hardcoding a host. There is no build step: [`index.html`](index.html) is
+served verbatim (try `python -m http.server` in a clone), and it renders
+
+- every entry with the exact command that installs it —
+  `aelix extension install <source>` — and a Copy button. A source is quoted only
+  where it must be, and only in a form that no common shell (sh, bash, zsh, fish,
+  PowerShell, cmd) can read as anything but that one argument; one that cannot be
+  written so (a version range, for one), or that is neither a git URL nor a PyPI
+  name, gets no command at all;
+- search, a type filter (pi's package types), tag filters and two sort orders,
+  all kept in the address so any view can be shared: `?q=`, `?type=`, `?tag=`,
+  `?sort=name|catalog`, `?page=`;
+- a page per entry at `?ext=<name>`: the source's repository and the exact
+  revision it installs, the `aelix extension discover install <name>` route, and
+  a link to report the listing.
+
+A new field reaches the page in two steps: its script's `normalize()` reads it,
+and one entry in `FACETS` (a filter: toolbar dropdown, address parameter, chips,
+entry page) or `SORTS` (an order) exposes it.
 
 ## Development
 
