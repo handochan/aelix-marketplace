@@ -5,7 +5,7 @@
   "extensions": [
     {
       "name": "aelix-memory",
-      "source": "git+https://github.com/handochan/aelix-memory.git@b2080e410c10142c4a15e3e1d991359ad03b761d",
+      "source": "git+https://github.com/handochan/aelix-memory.git@73e5e9e9d0e5f9daec30b19250208799caaeba02",
       "description": "Enable memory globally once; automatically learn and recall project-isolated facts across sessions.",
       "version": "0.2.0",
       "homepage": "https://github.com/handochan/aelix-memory"
