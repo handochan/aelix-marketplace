@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "name": "Aelix official catalog",
-  "updated": "2026-10-08T15:57:54.289646Z",
+  "updated": "2026-10-08T16:09:39.514228Z",
   "extensions": [
     {
       "name": "aelix-memory",
       "source": "git+https://github.com/handochan/aelix-memory.git@8c10ec3bf90c213404e4b427ef2d1d304ff98592",
-      "description": "Global memory ON/OFF in /settings (Aelix 0.1.0b2.post1+); automatically learns and recalls project-isolated knowledge.",
+      "description": "Global Memory ON/OFF in /settings on hosts with extension settings support; automatic project-isolated learning and recall.",
       "version": "0.2.0",
       "homepage": "https://github.com/handochan/aelix-memory",
       "tags": [
