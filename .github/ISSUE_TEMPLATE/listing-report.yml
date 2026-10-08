@@ -1,0 +1,45 @@
+# Opened from the "Report" link on every homepage entry, which prefills the
+# `extension` and `source` fields below by their ids -- rename an id and that
+# link silently stops filling it in.
+name: Report a listing
+description: Something is wrong with an extension listed in this catalog.
+title: "Listing report: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for a problem with a **listing** — an entry in `catalog.json`.
+        The catalog is advisory: the owner reviews reports and may remove an entry
+        at any time. A bug in an extension's own behaviour belongs with its
+        maintainers, on its homepage or repository.
+  - type: input
+    id: extension
+    attributes:
+      label: Extension
+      description: The entry's `name`, as the catalog lists it.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Listed source
+      description: The entry's `source` — what `aelix extension install` is given.
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What is wrong?
+      options:
+        - It behaves maliciously or deceptively
+        - Its source moved, disappeared or was taken over
+        - It does not install, or installs but does not load
+        - Its name or description misleads, or imitates another project
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What you saw and how to reproduce it. If an install failed, paste the command and its output.
+    validations:
+      required: true
