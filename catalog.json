@@ -1,19 +1,20 @@
 {
   "schemaVersion": 1,
   "name": "Aelix official catalog",
-  "updated": "2026-10-11T06:51:34.054155Z",
+  "updated": "2026-10-12T16:19:01.565499Z",
   "extensions": [
     {
       "name": "aelix-memory",
-      "source": "git+https://github.com/handochan/aelix-memory.git@771a8cebc9a67326b722140c3e0af2c5c2b80113",
-      "description": "Open /memory for global ON/OFF and project memory management; automatic learning and recall through existing host APIs.",
-      "version": "0.3.0",
+      "source": "git+https://github.com/handochan/aelix-memory.git@c36703d3acb28456a45436fff682ff0f181b2c58",
+      "description": "Fixed startup summary and on-demand memory tools, with automatic learning; /memory controls global usage and project records.",
+      "version": "0.4.0",
       "homepage": "https://github.com/handochan/aelix-memory",
       "tags": [
         "memory",
         "panel",
         "settings",
-        "automatic-memory"
+        "automatic-memory",
+        "prompt-cache"
       ]
     },
     {
